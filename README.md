@@ -11,13 +11,14 @@ how issues are formatted when filling out an issue template.
 
 In particular this action expects a `fields` input where you can specify new
 line separated entries formatted as `Field Title, Field Value`. If the field
-value is quoted, the action will try to expand any environment variables within the string.
+value is quoted, the action will try to expand any environment variables within
+the string.
 
 ## Examples
 
 ### Basic Usage
 
-````
+```
 - name: Create Templateless Issue
   id: create-issue
   uses: benlei/create-issue-templateless@v1
@@ -26,7 +27,7 @@ value is quoted, the action will try to expand any environment variables within 
     fields: |
       Release Name, hello-world
       Release Version, v1.0.0
-````
+```
 
 ### Passing in a file's contents to a field
 
