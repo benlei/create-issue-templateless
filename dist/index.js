@@ -29243,6 +29243,9 @@ const fields = () => (0, exports.fieldsInput)()
     .filter(line => line.length > 0)
     .map(line => {
     const [key, value] = line.split(',', 2).map(field => field.trim());
+    if (value && value.startsWith('"') && value.endsWith('"')) {
+        return { key, value: JSON.parse(value) };
+    }
     return { key, value: value ?? '' };
 });
 exports.fields = fields;

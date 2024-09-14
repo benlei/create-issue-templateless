@@ -49,14 +49,10 @@ describe('action', () => {
     jest
       .spyOn(inputs, 'fieldsInput')
       .mockReturnValue('key1, value1\nkey2, value2')
-    const createIssue = jest
-      .spyOn(issue, 'createIssue')
-      .mockRejectedValue(new Error('Test error'))
+    jest.spyOn(issue, 'createIssue').mockRejectedValue(new Error('Test error'))
     const setFailedMock = jest
       .spyOn(core, 'setFailed')
-      .mockImplementation(message => {
-        return
-      })
+      .mockImplementation(() => {})
 
     await main.run()
 
