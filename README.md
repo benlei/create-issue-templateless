@@ -6,13 +6,16 @@
 [![CodeQL](https://github.com/benlei/create-issue-templateless/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/benlei/create-issue-templateless/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-This action can be used to help create issues that are formatted similarly to
-how issues are formatted when filling out an issue template.
+This action can be used to help create (and update) issues that are formatted
+similarly to how issues are formatted when filling out an issue template.
 
 In particular this action expects a `fields` input where you can specify new
 line separated entries formatted as `Field Title, Field Value`. If the field
 value is quoted, the action will try to expand any environment variables within
 the string.
+
+It does try to find if there's an existing issue with the exact same name, and
+will update its body if it does find it.
 
 ## Examples
 

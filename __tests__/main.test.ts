@@ -29,6 +29,8 @@ describe('action', () => {
   it('should create issue with expected params', async () => {
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
+    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
+
     const createIssue = jest
       .spyOn(issue, 'createIssue')
       .mockResolvedValue({ data: { number: 123 } })
@@ -45,6 +47,7 @@ describe('action', () => {
     jest
       .spyOn(inputs, 'fieldsInput')
       .mockReturnValue('key1, value1\nkey2, value2')
+    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
     jest.spyOn(issue, 'createIssue').mockRejectedValue(new Error('Test error'))
     const setFailedMock = jest
       .spyOn(core, 'setFailed')
@@ -53,5 +56,21 @@ describe('action', () => {
     await main.run()
 
     expect(setFailedMock).toHaveBeenCalledWith('Test error')
+  })
+
+  it('should update issue with expected params', async () => {
+    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
+    jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
+    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
+
+    const updateIssue = jest
+      .spyOn(issue, 'updateIssue')
+      .mockResolvedValue({ data: { number: 123 } })
+    const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
+
+    await main.run()
+
+    expect(updateIssue).toHaveBeenCalledWith(123, renderIssueBody)
+    expect(setOutputMock).toHaveBeenCalledWith('issue-number', '123')
   })
 })

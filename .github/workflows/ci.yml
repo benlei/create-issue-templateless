@@ -60,7 +60,29 @@ jobs:
         with:
           path: ./package.json
 
-      - name: Test Local Action
+      - name: Test Local Action - Update
+        id: update-action
+        uses: ./
+        env:
+          PACKAGE_JSON_BLOCK: |
+            ```json
+            ${{ steps.package.outputs.content }}
+            ```
+        with:
+          title: 'Long Running Issue'
+          fields: |
+            Some Field, Some Value
+            Hello, World
+            package.json, "${PACKAGE_JSON_BLOCK}"
+            Foo, Bar
+
+      - name: Expected update, but a new issue was created
+        if: ${{ steps.update-action.outputs.issue-number != '13' }}
+        run: |
+          echo "Issue Number: ${{ steps.update-action.outputs.issue-number }}"
+          exit 1
+
+      - name: Test Local Action - Create
         id: test-action
         uses: ./
         env:
@@ -69,16 +91,14 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
-          title: 'Test Issue from CI'
+          title: 'Test Issue from CI ${{ github.run_id }}'
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
             package.json, "${PACKAGE_JSON_BLOCK}"
 
-      - name: Print Output
-        id: output
+      - name: Print Create Output
         run: |
-          echo "Issue ID: ${{ steps.test-action.outputs.issue-id }}"
           echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
 
       - name: Close Issue

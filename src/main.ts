@@ -1,6 +1,11 @@
 import * as core from '@actions/core'
 import { fields, titleInput } from './inputs'
-import { createIssue, renderIssueBody } from './issue'
+import {
+  createIssue,
+  findIssueNumber,
+  renderIssueBody,
+  updateIssue
+} from './issue'
 
 /**
  * The main function for the action.
@@ -8,8 +13,14 @@ import { createIssue, renderIssueBody } from './issue'
  */
 export async function run(): Promise<void> {
   try {
-    const result = await createIssue(titleInput(), renderIssueBody(fields()))
-    core.setOutput('issue-number', result.data.number.toString())
+    const existingIssueNumber = await findIssueNumber(titleInput())
+    if (existingIssueNumber) {
+      await updateIssue(existingIssueNumber, renderIssueBody(fields()))
+      core.setOutput('issue-number', existingIssueNumber.toString())
+    } else {
+      const result = await createIssue(titleInput(), renderIssueBody(fields()))
+      core.setOutput('issue-number', result.data.number.toString())
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
