@@ -73,7 +73,7 @@ jobs:
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            package.json, ${{ toJSON(env.PACKAGE_JSON_BLOCK) }}
+            package.json, "${PACKAGE_JSON_BLOCK}"
 
       - name: Print Output
         id: output

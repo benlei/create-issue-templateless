@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as dotenvExpand from 'dotenv-expand'
 import { Field } from './types'
 
 export const titleInput = (): string =>
@@ -27,7 +28,12 @@ export const fields = (): Field[] =>
       const [key, value] = line.split(',', 2).map(field => field.trim())
 
       if (value && value.startsWith('"') && value.endsWith('"')) {
-        return { key, value: JSON.parse(value) }
+        return {
+          key,
+          value:
+            dotenvExpand.expand({ parsed: { value: value.slice(1, -1) } })
+              .parsed?.value ?? ''
+        }
       }
 
       return { key, value: value ?? '' }

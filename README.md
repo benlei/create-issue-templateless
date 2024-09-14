@@ -11,8 +11,7 @@ how issues are formatted when filling out an issue template.
 
 In particular this action expects a `fields` input where you can specify new
 line separated entries formatted as `Field Title, Field Value`. If the field
-value is quoted, it will be treated as a JSON string and will be parsed as
-such... which enables you to put multiline text for a field value.
+value is quoted, the action will try to expand any environment variables within the string.
 
 ## Examples
 
@@ -27,7 +26,6 @@ such... which enables you to put multiline text for a field value.
     fields: |
       Release Name, hello-world
       Release Version, v1.0.0
-      YAML, "```yaml\nhello: world\nfoo: bar\n```"
 ````
 
 ### Passing in a file's contents to a field
@@ -42,13 +40,17 @@ such... which enables you to put multiline text for a field value.
 - name: Create Templateless Issue
   id: create-issue
   uses: benlei/create-issue-templateless@v1
-  id:
+  env:
+    PACKAGE_JSON_BLOCK: |
+      ```json
+      ${{ steps.package.outputs.content }}
+      ```
   with:
-    title: My Issue Title
+    title: 'Test Issue from CI'
     fields: |
       Release Name, hello-world
       Release Version, v1.0.0
-      package.json, ${{ toJSON(format('```json\n{0}\n```', toJSON(steps.package.outputs.content))) }}
+      package.json, "${PACKAGE_JSON_BLOCK}"
 
 - name: Close Issue
   uses: peter-evans/close-issue@v3

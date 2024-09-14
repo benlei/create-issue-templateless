@@ -41,11 +41,10 @@ describe('fields', () => {
 
   it('should parse quoted value as a JSON', () => {
     const key2Value = '```yaml\nfoo: 123\nbar: baz\n```'
+    process.env.MY_ENV_VAR = key2Value
     jest
       .spyOn(inputs, 'fieldsInput')
-      .mockReturnValue(
-        `key1, value1\nkey2, ${JSON.stringify(key2Value)}\nkey3, 123`
-      )
+      .mockReturnValue(`key1, value1\nkey2, "\${MY_ENV_VAR}"\nkey3, 123`)
 
     const result = inputs.fields()
     expect(result).toEqual([
