@@ -73,7 +73,7 @@ jobs:
       - name: Expected update, but wasnt to correct issue
         if: ${{ steps.update-by-number-action.outputs.issue-number != '12' }}
         run: |
-          echo "Issue Number: ${{ steps.update-by-title-number.outputs.issue-number }}"
+          echo "Issue Number: ${{ steps.update-by-number-action.outputs.issue-number }}"
           exit 1
 
       - name: Test Local Action - Update by Title
