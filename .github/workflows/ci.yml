@@ -63,12 +63,17 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
+        env:
+          PACKAGE_JSON_BLOCK: |
+            ```json
+            ${{ toJSON(steps.package.outputs.content) }}
+            ```
         with:
           title: 'Test Issue from CI'
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            package.json, ${{ toJSON(format('```json\n{0}\n```', steps.package.outputs.content)) }}
+            package.json, ${{ toJSON(env.PACKAGE_JSON_BLOCK) }}
 
       - name: Print Output
         id: output
