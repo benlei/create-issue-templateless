@@ -31,17 +31,14 @@ describe('action', () => {
     jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
     const createIssue = jest
       .spyOn(issue, 'createIssue')
-      .mockResolvedValue({ data: { number: 123 } })
-    const setOutputMock = jest
-      .spyOn(core, 'setOutput')
-      .mockImplementation((key, value) => {
-        return jest.requireActual('@actions/core').setOutput(key, value)
-      })
+      .mockResolvedValue({ data: { id: 436431463, number: 123 } })
+    const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
 
     await main.run()
 
     expect(createIssue).toHaveBeenCalledWith('My Title', renderIssueBody)
-    expect(setOutputMock).toHaveBeenCalledWith('issue-id', '123')
+    expect(setOutputMock).toHaveBeenCalledWith('issue-id', '436431463')
+    expect(setOutputMock).toHaveBeenCalledWith('issue-number', '123')
   })
 
   it('should fail the workflow if an error occurs', async () => {

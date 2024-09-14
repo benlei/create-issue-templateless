@@ -54,6 +54,12 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Read package.json
+        id: package
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./package.json
+
       - name: Test Local Action
         id: test-action
         uses: ./
@@ -62,13 +68,15 @@ jobs:
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            YAML, "```yaml\nhello: world\nfoo: bar\n```"
+            package.json, ${{ toJSON('```json\n{0}\n```', steps.package.outputs.content) }}
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.issue-id }}"
+        run: |
+          echo "Issue ID: ${{ steps.test-action.outputs.issue-id }}"
+          echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
 
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
-          issue-number: ${{ steps.test-action.outputs.issue-id }}
+          issue-number: ${{ steps.test-action.outputs.issue-number }}

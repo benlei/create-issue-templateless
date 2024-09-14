@@ -29314,7 +29314,8 @@ const issue_1 = __nccwpck_require__(769);
 async function run() {
     try {
         const result = await (0, issue_1.createIssue)((0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
-        core.setOutput('issue-id', result.data.number.toString());
+        core.setOutput('issue-id', result.data.id.toString());
+        core.setOutput('issue-number', result.data.number.toString());
     }
     catch (error) {
         // Fail the workflow run if an error occurs
