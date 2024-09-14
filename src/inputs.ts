@@ -6,6 +6,11 @@ export const fieldsInput = () =>
     trimWhitespace: true
   })
 
+export const githubToken = () =>
+  core.getInput('github-token', {
+    required: false
+  })
+
 export const fields = () =>
   fieldsInput()
     .split('\n')

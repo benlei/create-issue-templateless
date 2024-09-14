@@ -14,6 +14,10 @@ inputs:
   fields:
     description: 'The fields to include in the issue'
     required: true
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
 
 # Define your outputs here.
 outputs:
