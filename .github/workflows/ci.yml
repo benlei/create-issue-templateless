@@ -62,8 +62,13 @@ jobs:
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            YAML, "```yaml\nhello: world\n```"
+            YAML, "```yaml\nhello: world\nfoo:bar\n```"
 
       - name: Print Output
         id: output
         run: echo "${{ steps.test-action.outputs.issue-id }}"
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ steps.test-action.outputs.issue-id }}
