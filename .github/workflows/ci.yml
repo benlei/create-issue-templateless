@@ -62,7 +62,7 @@ jobs:
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            YAML, "```yaml\nhello: world\nfoo:bar\n```"
+            YAML, "```yaml\nhello: world\nfoo: bar\n```"
 
       - name: Print Output
         id: output
