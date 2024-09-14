@@ -66,7 +66,7 @@ jobs:
         env:
           PACKAGE_JSON_BLOCK: |
             ```json
-            ${{ toJSON(steps.package.outputs.content) }}
+            ${{ steps.package.outputs.content }}
             ```
         with:
           title: 'Test Issue from CI'
