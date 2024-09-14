@@ -2,6 +2,18 @@ import * as core from '@actions/core'
 import * as dotenvExpand from 'dotenv-expand'
 import { Field } from './types'
 
+export const issueNumberInput = (): string =>
+  core.getInput('issue-number', {
+    required: false,
+    trimWhitespace: true
+  })
+
+export const updateByTitleInput = (): boolean =>
+  core.getInput('update-by-title', {
+    required: false,
+    trimWhitespace: true
+  }) === 'true'
+
 export const titleInput = (): string =>
   core.getInput('title', {
     required: true,
