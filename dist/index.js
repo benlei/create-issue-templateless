@@ -30940,6 +30940,49 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 978:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.updateIssue = exports.createIssue = exports.openIssuesIterator = void 0;
+const github_1 = __nccwpck_require__(5438);
+const utils_1 = __nccwpck_require__(3030);
+const plugin_retry_1 = __nccwpck_require__(6298);
+const inputs_1 = __nccwpck_require__(7063);
+const retry_options_1 = __nccwpck_require__(5199);
+const RetryAttempts = 3;
+const ExemptStatusCodes = [400, 401, 403, 404, 422];
+const octokit = () => {
+    const [retryOpts, requestOpts] = (0, retry_options_1.getRetryOptions)(RetryAttempts, ExemptStatusCodes, utils_1.defaults);
+    return (0, github_1.getOctokit)((0, inputs_1.githubTokenInput)(), {
+        retry: retryOpts,
+        request: requestOpts
+    }, plugin_retry_1.retry);
+};
+const openIssuesIterator = () => octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
+    ...github_1.context.repo,
+    state: 'open'
+});
+exports.openIssuesIterator = openIssuesIterator;
+const createIssue = async (title, body) => await octokit().rest.issues.create({
+    ...github_1.context.repo,
+    title,
+    body
+});
+exports.createIssue = createIssue;
+const updateIssue = async (issueNumber, title, body) => await octokit().rest.issues.update({
+    ...github_1.context.repo,
+    issue_number: issueNumber,
+    title,
+    body
+});
+exports.updateIssue = updateIssue;
+
+
+/***/ }),
+
 /***/ 7063:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -31022,28 +31065,11 @@ exports.fields = fields;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.renderIssueBody = exports.updateIssue = exports.createIssue = exports.findIssueNumber = exports.openIssuesIterator = void 0;
-const github_1 = __nccwpck_require__(5438);
-const utils_1 = __nccwpck_require__(3030);
-const plugin_retry_1 = __nccwpck_require__(6298);
+exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.renderIssueBody = exports.findIssueNumber = void 0;
+const github_1 = __nccwpck_require__(978);
 const inputs_1 = __nccwpck_require__(7063);
-const retry_options_1 = __nccwpck_require__(5199);
-const RetryAttempts = 3;
-const ExemptStatusCodes = [400, 401, 403, 404, 422];
-const octokit = () => {
-    const [retryOpts, requestOpts] = (0, retry_options_1.getRetryOptions)(RetryAttempts, ExemptStatusCodes, utils_1.defaults);
-    return (0, github_1.getOctokit)((0, inputs_1.githubTokenInput)(), {
-        retry: retryOpts,
-        request: requestOpts
-    }, plugin_retry_1.retry);
-};
-const openIssuesIterator = () => octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-    ...github_1.context.repo,
-    state: 'open'
-});
-exports.openIssuesIterator = openIssuesIterator;
 const findIssueNumber = async (title) => {
-    for await (const response of (0, exports.openIssuesIterator)()) {
+    for await (const response of (0, github_1.openIssuesIterator)()) {
         const issue = response.data.find((issue) => issue.title === title);
         if (issue)
             return issue.number;
@@ -31051,21 +31077,22 @@ const findIssueNumber = async (title) => {
     return null;
 };
 exports.findIssueNumber = findIssueNumber;
-const createIssue = async (title, body) => await octokit().rest.issues.create({
-    ...github_1.context.repo,
-    title,
-    body
-});
-exports.createIssue = createIssue;
-const updateIssue = async (issueNumber, title, body) => await octokit().rest.issues.update({
-    ...github_1.context.repo,
-    issue_number: issueNumber,
-    title,
-    body
-});
-exports.updateIssue = updateIssue;
 const renderIssueBody = (fields) => fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n');
 exports.renderIssueBody = renderIssueBody;
+const updateIssueByTitle = async () => {
+    const existingIssueNumber = await (0, exports.findIssueNumber)((0, inputs_1.titleInput)());
+    if (!existingIssueNumber) {
+        throw new Error('No issue found with the given title');
+    }
+    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+};
+exports.updateIssueByTitle = updateIssueByTitle;
+const updateIssueByNumber = async () => {
+    return await (0, github_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+};
+exports.updateIssueByNumber = updateIssueByNumber;
+const createNewIssue = async () => await (0, github_1.createIssue)((0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+exports.createNewIssue = createNewIssue;
 
 
 /***/ }),
@@ -31103,7 +31130,6 @@ exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
 const inputs_1 = __nccwpck_require__(7063);
 const issue_1 = __nccwpck_require__(769);
-const update_1 = __nccwpck_require__(8386);
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
@@ -31111,15 +31137,15 @@ const update_1 = __nccwpck_require__(8386);
 async function run() {
     try {
         if ((0, inputs_1.issueNumberInput)()) {
-            const existingIssue = await (0, update_1.updateIssueByNumber)();
+            const existingIssue = await (0, issue_1.updateIssueByNumber)();
             core.setOutput('issue-number', existingIssue.data.number.toString());
         }
         else if ((0, inputs_1.updateByTitleInput)()) {
-            const existingIssue = await (0, update_1.updateIssueByTitle)();
+            const existingIssue = await (0, issue_1.updateIssueByTitle)();
             core.setOutput('issue-number', existingIssue.data.number.toString());
         }
         else {
-            const result = await (0, issue_1.createIssue)((0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
+            const result = await (0, issue_1.createNewIssue)();
             core.setOutput('issue-number', result.data.number.toString());
         }
     }
@@ -31193,31 +31219,6 @@ function parseNumberArray(listString) {
     const split = listString.trim().split(',');
     return split.map(x => parseInt(x));
 }
-
-
-/***/ }),
-
-/***/ 8386:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateIssueByNumber = exports.updateIssueByTitle = void 0;
-const inputs_1 = __nccwpck_require__(7063);
-const issue_1 = __nccwpck_require__(769);
-const updateIssueByTitle = async () => {
-    const existingIssueNumber = await (0, issue_1.findIssueNumber)((0, inputs_1.titleInput)());
-    if (!existingIssueNumber) {
-        throw new Error('No issue found with the given title');
-    }
-    return await (0, issue_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
-};
-exports.updateIssueByTitle = updateIssueByTitle;
-const updateIssueByNumber = async () => {
-    return await (0, issue_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
-};
-exports.updateIssueByNumber = updateIssueByNumber;
 
 
 /***/ }),

@@ -1,39 +1,6 @@
-import { context, getOctokit } from '@actions/github'
-import {
-  defaults as defaultGitHubOptions,
-  GitHub
-} from '@actions/github/lib/utils'
-import { retry } from '@octokit/plugin-retry'
-import { githubTokenInput } from './inputs'
-import { getRetryOptions } from './retry-options'
-import { Field, IssueListResponse, IssueResponse } from './types'
-
-const RetryAttempts = 3
-const ExemptStatusCodes = [400, 401, 403, 404, 422]
-
-const octokit = (): InstanceType<typeof GitHub> => {
-  const [retryOpts, requestOpts] = getRetryOptions(
-    RetryAttempts,
-    ExemptStatusCodes,
-    defaultGitHubOptions
-  )
-
-  return getOctokit(
-    githubTokenInput(),
-    {
-      retry: retryOpts,
-      request: requestOpts
-    },
-    retry
-  )
-}
-
-export const openIssuesIterator =
-  (): AsyncIterableIterator<IssueListResponse> =>
-    octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-      ...context.repo,
-      state: 'open'
-    })
+import { createIssue, openIssuesIterator, updateIssue } from './github'
+import { fields, issueNumberInput, titleInput } from './inputs'
+import { Field, IssueResponse } from './types'
 
 export const findIssueNumber = async (
   title: string
@@ -49,27 +16,29 @@ export const findIssueNumber = async (
   return null
 }
 
-export const createIssue = async (
-  title: string,
-  body: string
-): Promise<IssueResponse> =>
-  await octokit().rest.issues.create({
-    ...context.repo,
-    title,
-    body
-  })
-
-export const updateIssue = async (
-  issueNumber: number,
-  title: string,
-  body: string
-): Promise<IssueResponse> =>
-  await octokit().rest.issues.update({
-    ...context.repo,
-    issue_number: issueNumber,
-    title,
-    body
-  })
-
 export const renderIssueBody = (fields: Field[]): string =>
   fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n')
+
+export const updateIssueByTitle = async (): Promise<IssueResponse> => {
+  const existingIssueNumber = await findIssueNumber(titleInput())
+  if (!existingIssueNumber) {
+    throw new Error('No issue found with the given title')
+  }
+
+  return await updateIssue(
+    existingIssueNumber,
+    titleInput(),
+    renderIssueBody(fields())
+  )
+}
+
+export const updateIssueByNumber = async (): Promise<IssueResponse> => {
+  return await updateIssue(
+    parseInt(issueNumberInput(), 10),
+    titleInput(),
+    renderIssueBody(fields())
+  )
+}
+
+export const createNewIssue = async (): Promise<IssueResponse> =>
+  await createIssue(titleInput(), renderIssueBody(fields()))
