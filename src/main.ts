@@ -9,7 +9,6 @@ import { createIssue, renderIssueBody } from './issue'
 export async function run(): Promise<void> {
   try {
     const result = await createIssue(titleInput(), renderIssueBody(fields()))
-    core.setOutput('issue-id', result.data.id.toString())
     core.setOutput('issue-number', result.data.number.toString())
   } catch (error) {
     // Fail the workflow run if an error occurs

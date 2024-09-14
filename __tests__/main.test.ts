@@ -31,13 +31,12 @@ describe('action', () => {
     jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
     const createIssue = jest
       .spyOn(issue, 'createIssue')
-      .mockResolvedValue({ data: { id: 436431463, number: 123 } })
+      .mockResolvedValue({ data: { number: 123 } })
     const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
 
     await main.run()
 
     expect(createIssue).toHaveBeenCalledWith('My Title', renderIssueBody)
-    expect(setOutputMock).toHaveBeenCalledWith('issue-id', '436431463')
     expect(setOutputMock).toHaveBeenCalledWith('issue-number', '123')
   })
 
