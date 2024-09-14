@@ -1,4 +1,4 @@
-import * as inputs from '../src/inputs';
+import * as inputs from '../src/inputs'
 
 describe('fields', () => {
   beforeEach(() => {
@@ -6,22 +6,26 @@ describe('fields', () => {
   })
 
   it('should parse fields properly', () => {
-    jest.spyOn(inputs, 'fieldsInput').mockReturnValue('key1, value1\nkey2, value2')
+    jest
+      .spyOn(inputs, 'fieldsInput')
+      .mockReturnValue('key1, value1\nkey2, value2')
 
     const result = inputs.fields()
     expect(result).toEqual([
       { key: 'key1', value: 'value1' },
-      { key: 'key2', value: 'value2' },
+      { key: 'key2', value: 'value2' }
     ])
   })
 
   it('should ignore empty lines with whitespaces', () => {
-    jest.spyOn(inputs, 'fieldsInput').mockReturnValue('key1, value1\n\n   \n\t\nkey2,   value2')
+    jest
+      .spyOn(inputs, 'fieldsInput')
+      .mockReturnValue('key1, value1\n\n   \n\t\nkey2,   value2')
 
     const result = inputs.fields()
     expect(result).toEqual([
       { key: 'key1', value: 'value1' },
-      { key: 'key2', value: 'value2' },
+      { key: 'key2', value: 'value2' }
     ])
   })
 
@@ -31,7 +35,7 @@ describe('fields', () => {
     const result = inputs.fields()
     expect(result).toEqual([
       { key: 'key1', value: 'value1' },
-      { key: 'key2', value: '' },
+      { key: 'key2', value: '' }
     ])
   })
-});
+})

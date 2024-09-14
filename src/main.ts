@@ -7,7 +7,6 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    
     // Set outputs for other workflow steps to use
     core.setOutput('issue-id', '123')
   } catch (error) {

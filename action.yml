@@ -1,5 +1,7 @@
 name: 'Create Issue Templateless'
-description: ' Creates an issue like one would through an Issue Template, but without the template '
+description:
+  ' Creates an issue like one would through an Issue Template, but without the
+  template '
 author: 'benlei'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
