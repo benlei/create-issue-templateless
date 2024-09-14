@@ -68,7 +68,7 @@ jobs:
           fields: |
             Release Name, hello-world
             Release Version, v1.0.0
-            package.json, ${{ toJSON(format('```json\n{0}\n```', toJSON(steps.package.outputs.content))) }}
+            package.json, ${{ toJSON(format('```json\n{0}\n```', steps.package.outputs.content)) }}
 
       - name: Print Output
         id: output
