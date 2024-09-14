@@ -10,6 +10,7 @@ import * as core from '@actions/core'
 import * as inputs from '../src/inputs'
 import * as issue from '../src/issue'
 import * as main from '../src/main'
+import * as update from '../src/update'
 
 const fieldsInput = 'key1, value1\nkey2, value2'
 const renderIssueBody = `
@@ -25,12 +26,12 @@ value2
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-  })
-  it('should create issue with expected params', async () => {
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
-    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
-
+    jest.spyOn(inputs, 'updateByTitleInput').mockReturnValue(false)
+    jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('')
+  })
+  it('should create issue with expected params', async () => {
     const createIssue = jest
       .spyOn(issue, 'createIssue')
       .mockResolvedValue({ data: { number: 123 } })
@@ -43,11 +44,6 @@ describe('action', () => {
   })
 
   it('should fail the workflow if an error occurs', async () => {
-    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest
-      .spyOn(inputs, 'fieldsInput')
-      .mockReturnValue('key1, value1\nkey2, value2')
-    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
     jest.spyOn(issue, 'createIssue').mockRejectedValue(new Error('Test error'))
     const setFailedMock = jest
       .spyOn(core, 'setFailed')
@@ -58,19 +54,29 @@ describe('action', () => {
     expect(setFailedMock).toHaveBeenCalledWith('Test error')
   })
 
-  it('should update issue with expected params', async () => {
-    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
-    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
+  it('should update issue by issue number when specified to', async () => {
+    jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('89')
+    jest
+      .spyOn(update, 'updateIssueByNumber')
+      .mockResolvedValue({ data: { number: 89 } })
 
-    const updateIssue = jest
-      .spyOn(issue, 'updateIssue')
-      .mockResolvedValue({ data: { number: 123 } })
     const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
 
     await main.run()
 
-    expect(updateIssue).toHaveBeenCalledWith(123, renderIssueBody)
-    expect(setOutputMock).toHaveBeenCalledWith('issue-number', '123')
+    expect(setOutputMock).toHaveBeenCalledWith('issue-number', '89')
+  })
+
+  it('should update issue by title when specified to', async () => {
+    jest.spyOn(inputs, 'updateByTitleInput').mockReturnValue(true)
+    jest
+      .spyOn(update, 'updateIssueByTitle')
+      .mockResolvedValue({ data: { number: 723 } })
+
+    const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
+
+    await main.run()
+
+    expect(setOutputMock).toHaveBeenCalledWith('issue-number', '723')
   })
 })

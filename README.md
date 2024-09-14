@@ -14,8 +14,9 @@ line separated entries formatted as `Field Title, Field Value`. If the field
 value is quoted, the action will try to expand any environment variables within
 the string.
 
-It does try to find if there's an existing issue with the exact same name, and
-will update its body if it does find it.
+It does have the ability to update an existing issue if you provide the
+`issue-number` field... or if you set the `update-by-title` field as true, it'll
+try to exhaustively search for an issue with the same title and update it.
 
 ## Examples
 

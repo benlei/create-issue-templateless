@@ -60,8 +60,23 @@ jobs:
         with:
           path: ./package.json
 
-      - name: Test Local Action - Update
-        id: update-action
+      - name: Test Local Action - Update by Number
+        id: update-by-number-action
+        uses: ./
+        with:
+          issue-number: 12
+          fields: |
+            Some Field, Some Value
+            Hello, World
+
+      - name: Expected update, but wasnt to correct issue
+        if: ${{ steps.update-by-number-action.outputs.issue-number != '12' }}
+        run: |
+          echo "Issue Number: ${{ steps.update-by-title-number.outputs.issue-number }}"
+          exit 1
+
+      - name: Test Local Action - Update by Title
+        id: update-by-title-action
         uses: ./
         env:
           PACKAGE_JSON_BLOCK: |
@@ -70,6 +85,7 @@ jobs:
             ```
         with:
           title: 'Long Running Issue'
+          update-by-title: true
           fields: |
             Some Field, Some Value
             Hello, World
@@ -77,9 +93,9 @@ jobs:
             Foo, Bar
 
       - name: Expected update, but a new issue was created
-        if: ${{ steps.update-action.outputs.issue-number != '13' }}
+        if: ${{ steps.update-by-title-action.outputs.issue-number != '13' }}
         run: |
-          echo "Issue Number: ${{ steps.update-action.outputs.issue-number }}"
+          echo "Issue Number: ${{ steps.update-by-title-action.outputs.issue-number }}"
           exit 1
 
       - name: Test Local Action - Create

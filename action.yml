@@ -11,8 +11,15 @@ branding:
 
 # Define your inputs here.
 inputs:
+  issue-number:
+    description: 'The issue number to update'
+    required: false
+  update-by-title:
+    description: 'Whether to find the issue by title and update its contents'
+    required: false
+    default: 'false'
   title:
-    description: 'The title of the issue'
+    description: 'The title of the issue to find/update'
     required: true
   fields:
     description: 'The fields to include in the issue'

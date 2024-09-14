@@ -30969,9 +30969,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fields = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = void 0;
+exports.fields = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const dotenvExpand = __importStar(__nccwpck_require__(7967));
+const issueNumberInput = () => core.getInput('issue-number', {
+    required: false,
+    trimWhitespace: true
+});
+exports.issueNumberInput = issueNumberInput;
+const updateByTitleInput = () => core.getInput('update-by-title', {
+    required: false,
+    trimWhitespace: true
+}) === 'true';
+exports.updateByTitleInput = updateByTitleInput;
 const titleInput = () => core.getInput('title', {
     required: true,
     trimWhitespace: true
@@ -31047,9 +31057,10 @@ const createIssue = async (title, body) => await octokit().rest.issues.create({
     body
 });
 exports.createIssue = createIssue;
-const updateIssue = async (issueNumber, body) => await octokit().rest.issues.update({
+const updateIssue = async (issueNumber, title, body) => await octokit().rest.issues.update({
     ...github_1.context.repo,
     issue_number: issueNumber,
+    title,
     body
 });
 exports.updateIssue = updateIssue;
@@ -31092,16 +31103,20 @@ exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
 const inputs_1 = __nccwpck_require__(7063);
 const issue_1 = __nccwpck_require__(769);
+const update_1 = __nccwpck_require__(8386);
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
     try {
-        const existingIssueNumber = await (0, issue_1.findIssueNumber)((0, inputs_1.titleInput)());
-        if (existingIssueNumber) {
-            await (0, issue_1.updateIssue)(existingIssueNumber, (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
-            core.setOutput('issue-number', existingIssueNumber.toString());
+        if ((0, inputs_1.issueNumberInput)()) {
+            const existingIssue = await (0, update_1.updateIssueByNumber)();
+            core.setOutput('issue-number', existingIssue.data.number.toString());
+        }
+        else if ((0, inputs_1.updateByTitleInput)()) {
+            const existingIssue = await (0, update_1.updateIssueByTitle)();
+            core.setOutput('issue-number', existingIssue.data.number.toString());
         }
         else {
             const result = await (0, issue_1.createIssue)((0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
@@ -31178,6 +31193,31 @@ function parseNumberArray(listString) {
     const split = listString.trim().split(',');
     return split.map(x => parseInt(x));
 }
+
+
+/***/ }),
+
+/***/ 8386:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.updateIssueByNumber = exports.updateIssueByTitle = void 0;
+const inputs_1 = __nccwpck_require__(7063);
+const issue_1 = __nccwpck_require__(769);
+const updateIssueByTitle = async () => {
+    const existingIssueNumber = await (0, issue_1.findIssueNumber)((0, inputs_1.titleInput)());
+    if (!existingIssueNumber) {
+        throw new Error('No issue found with the given title');
+    }
+    return await (0, issue_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
+};
+exports.updateIssueByTitle = updateIssueByTitle;
+const updateIssueByNumber = async () => {
+    return await (0, issue_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, issue_1.renderIssueBody)((0, inputs_1.fields)()));
+};
+exports.updateIssueByNumber = updateIssueByNumber;
 
 
 /***/ }),

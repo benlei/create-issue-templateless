@@ -1,11 +1,12 @@
 import * as core from '@actions/core'
-import { fields, titleInput } from './inputs'
 import {
-  createIssue,
-  findIssueNumber,
-  renderIssueBody,
-  updateIssue
-} from './issue'
+  fields,
+  issueNumberInput,
+  titleInput,
+  updateByTitleInput
+} from './inputs'
+import { createIssue, renderIssueBody } from './issue'
+import { updateIssueByNumber, updateIssueByTitle } from './update'
 
 /**
  * The main function for the action.
@@ -13,10 +14,12 @@ import {
  */
 export async function run(): Promise<void> {
   try {
-    const existingIssueNumber = await findIssueNumber(titleInput())
-    if (existingIssueNumber) {
-      await updateIssue(existingIssueNumber, renderIssueBody(fields()))
-      core.setOutput('issue-number', existingIssueNumber.toString())
+    if (issueNumberInput()) {
+      const existingIssue = await updateIssueByNumber()
+      core.setOutput('issue-number', existingIssue.data.number.toString())
+    } else if (updateByTitleInput()) {
+      const existingIssue = await updateIssueByTitle()
+      core.setOutput('issue-number', existingIssue.data.number.toString())
     } else {
       const result = await createIssue(titleInput(), renderIssueBody(fields()))
       core.setOutput('issue-number', result.data.number.toString())

@@ -61,11 +61,13 @@ export const createIssue = async (
 
 export const updateIssue = async (
   issueNumber: number,
+  title: string,
   body: string
 ): Promise<IssueResponse> =>
   await octokit().rest.issues.update({
     ...context.repo,
     issue_number: issueNumber,
+    title,
     body
   })
 
