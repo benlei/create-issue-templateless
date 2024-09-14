@@ -6,7 +6,7 @@ author: 'benlei'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
+  icon: 'play'
   color: 'red'
 
 # Define your inputs here.
