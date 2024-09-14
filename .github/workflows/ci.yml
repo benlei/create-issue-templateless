@@ -65,6 +65,7 @@ jobs:
         uses: ./
         with:
           issue-number: 12
+          title: Update by Issue Number Long Running Issue
           fields: |
             Some Field, Some Value
             Hello, World
