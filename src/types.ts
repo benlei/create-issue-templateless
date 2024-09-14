@@ -5,6 +5,6 @@ export interface Field {
 
 export interface IssueResponse {
   data: {
-    id: number
+    number: number
   }
 }

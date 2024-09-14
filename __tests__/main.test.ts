@@ -31,7 +31,7 @@ describe('action', () => {
     jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
     const createIssue = jest
       .spyOn(issue, 'createIssue')
-      .mockResolvedValue({ data: { id: 123 } })
+      .mockResolvedValue({ data: { number: 123 } })
     const setOutputMock = jest
       .spyOn(core, 'setOutput')
       .mockImplementation((key, value) => {
