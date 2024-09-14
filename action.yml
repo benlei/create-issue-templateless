@@ -25,7 +25,11 @@ inputs:
 # Define your outputs here.
 outputs:
   issue-id:
-    description: 'The ID of the issue that was created'
+    description: 'The issue id that was created'
+  issue-number:
+    description:
+      'The issue number that was created - use this for things like closing
+      issues'
 
 runs:
   using: node20

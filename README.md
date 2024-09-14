@@ -18,7 +18,7 @@ the string.
 
 ### Basic Usage
 
-```
+```yaml
 - name: Create Templateless Issue
   id: create-issue
   uses: benlei/create-issue-templateless@v1
@@ -31,7 +31,7 @@ the string.
 
 ### Passing in a file's contents to a field
 
-````
+````yaml
 - name: Read package.json
   id: package
   uses: juliangruber/read-file-action@v1
