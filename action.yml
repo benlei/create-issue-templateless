@@ -11,6 +11,9 @@ branding:
 
 # Define your inputs here.
 inputs:
+  title:
+    description: 'The title of the issue'
+    required: true
   fields:
     description: 'The fields to include in the issue'
     required: true

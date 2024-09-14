@@ -1,9 +1,12 @@
 import { context, getOctokit } from '@actions/github'
-import { githubToken } from './inputs'
-import { Field } from './types'
+import { githubTokenInput } from './inputs'
+import { Field, IssueResponse } from './types'
 
-export const createIssue = async (title: string, body: string) =>
-  await getOctokit(githubToken()).rest.issues.create({
+export const createIssue = async (
+  title: string,
+  body: string
+): Promise<IssueResponse> =>
+  await getOctokit(githubTokenInput()).rest.issues.create({
     ...context.repo,
     title,
     body

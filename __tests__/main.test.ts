@@ -7,26 +7,59 @@
  */
 
 import * as core from '@actions/core'
+import * as inputs from '../src/inputs'
+import * as issue from '../src/issue'
 import * as main from '../src/main'
 
-// Mock the action's main function
-const runMock = jest.spyOn(main, 'run')
+const fieldsInput = 'key1, value1\nkey2, value2'
+const renderIssueBody = `
+### key1
 
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
+value1
 
-// Mock the GitHub Actions core library
-let debugMock: jest.SpiedFunction<typeof core.debug>
-let errorMock: jest.SpiedFunction<typeof core.error>
-let getInputMock: jest.SpiedFunction<typeof core.getInput>
-let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
+### key2
+
+value2
+`.trim()
 
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
-  it('should do nothing at the moment', () => {
-    expect(1).toBe(1)
+  it('should create issue with expected params', async () => {
+    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
+    jest.spyOn(inputs, 'fieldsInput').mockReturnValue(fieldsInput)
+    const createIssue = jest
+      .spyOn(issue, 'createIssue')
+      .mockResolvedValue({ data: { id: 123 } })
+    const setOutputMock = jest
+      .spyOn(core, 'setOutput')
+      .mockImplementation((key, value) => {
+        return jest.requireActual('@actions/core').setOutput(key, value)
+      })
+
+    await main.run()
+
+    expect(createIssue).toHaveBeenCalledWith('My Title', renderIssueBody)
+    expect(setOutputMock).toHaveBeenCalledWith('issue-id', '123')
+  })
+
+  it('should fail the workflow if an error occurs', async () => {
+    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
+    jest
+      .spyOn(inputs, 'fieldsInput')
+      .mockReturnValue('key1, value1\nkey2, value2')
+    const createIssue = jest
+      .spyOn(issue, 'createIssue')
+      .mockRejectedValue(new Error('Test error'))
+    const setFailedMock = jest
+      .spyOn(core, 'setFailed')
+      .mockImplementation(message => {
+        return
+      })
+
+    await main.run()
+
+    expect(setFailedMock).toHaveBeenCalledWith('Test error')
   })
 })

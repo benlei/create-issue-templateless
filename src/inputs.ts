@@ -1,12 +1,18 @@
 import * as core from '@actions/core'
 
+export const titleInput = () =>
+  core.getInput('title', {
+    required: true,
+    trimWhitespace: true
+  })
+
 export const fieldsInput = () =>
   core.getInput('fields', {
     required: true,
     trimWhitespace: true
   })
 
-export const githubToken = () =>
+export const githubTokenInput = () =>
   core.getInput('github-token', {
     required: false
   })

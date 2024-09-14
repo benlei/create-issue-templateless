@@ -1,4 +1,6 @@
 import * as core from '@actions/core'
+import { fields, titleInput } from './inputs'
+import { createIssue, renderIssueBody } from './issue'
 
 /**
  * The main function for the action.
@@ -6,8 +8,8 @@ import * as core from '@actions/core'
  */
 export async function run(): Promise<void> {
   try {
-    // Set outputs for other workflow steps to use
-    core.setOutput('issue-id', '123')
+    const result = await createIssue(titleInput(), renderIssueBody(fields()))
+    core.setOutput('issue-id', result.data.id.toString())
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
