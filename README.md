@@ -48,7 +48,7 @@ such... which enables you to put multiline text for a field value.
     fields: |
       Release Name, hello-world
       Release Version, v1.0.0
-      package.json, ${{ toJSON('```json\n{0}\n```', steps.package.outputs.content) }}
+      package.json, ${{ toJSON(format('```json\n{0}\n```', steps.package.outputs.content)) }}
 
 - name: Close Issue
   uses: peter-evans/close-issue@v3
