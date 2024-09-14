@@ -69,12 +69,15 @@ describe('updateIssueByTitle', () => {
     jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
   })
 
-  it('should throw an error if no issue is found with the given title', async () => {
+  it('should create issue if couldnt be found by title', async () => {
     jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
+    const createIssue = jest
+      .spyOn(github, 'createIssue')
+      .mockResolvedValue({ data: { number: 123 } })
 
-    await expect(issue.updateIssueByTitle()).rejects.toThrow(
-      'No issue found with the given title'
-    )
+    expect(await issue.updateIssueByTitle()).toEqual({ data: { number: 123 } })
+
+    expect(createIssue).toHaveBeenCalledWith('My Title', 'My Body')
   })
 
   it('should update issue with expected params', async () => {

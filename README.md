@@ -16,7 +16,8 @@ the string.
 
 It does have the ability to update an existing issue if you provide the
 `issue-number` field... or if you set the `update-by-title` field as true, it'll
-try to exhaustively search for an issue with the same title and update it.
+try to exhaustively search for an issue with the same title and update it,
+otherwise will create the issue instead.
 
 ## Examples
 

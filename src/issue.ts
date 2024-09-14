@@ -22,7 +22,7 @@ export const renderIssueBody = (fields: Field[]): string =>
 export const updateIssueByTitle = async (): Promise<IssueResponse> => {
   const existingIssueNumber = await findIssueNumber(titleInput())
   if (!existingIssueNumber) {
-    throw new Error('No issue found with the given title')
+    return createNewIssue()
   }
 
   return await updateIssue(

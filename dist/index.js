@@ -31082,7 +31082,7 @@ exports.renderIssueBody = renderIssueBody;
 const updateIssueByTitle = async () => {
     const existingIssueNumber = await (0, exports.findIssueNumber)((0, inputs_1.titleInput)());
     if (!existingIssueNumber) {
-        throw new Error('No issue found with the given title');
+        return (0, exports.createNewIssue)();
     }
     return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
 };
