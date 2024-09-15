@@ -31015,7 +31015,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.repository = exports.fields = exports.failOnErrorInput = exports.partialUpdateInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
-const dotenvExpand = __importStar(__nccwpck_require__(7967));
+const render_1 = __nccwpck_require__(1936);
 const repositoryInput = () => core.getInput('repository', {
     required: true,
     trimWhitespace: true
@@ -31059,17 +31059,7 @@ const fields = () => (0, exports.fieldsInput)()
     .split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0)
-    .map(line => {
-    const [key, value] = line.split(',', 2).map(field => field.trim());
-    if (value && value.startsWith('"') && value.endsWith('"')) {
-        return {
-            key,
-            value: dotenvExpand.expand({ parsed: { value: value.slice(1, -1) } })
-                .parsed?.value ?? ''
-        };
-    }
-    return { key, value: value ?? '' };
-});
+    .map(render_1.renderFieldLine);
 exports.fields = fields;
 const repository = () => {
     const input = (0, exports.repositoryInput)() || `${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
@@ -31196,14 +31186,50 @@ async function run() {
 /***/ }),
 
 /***/ 1936:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.renderIssueBody = void 0;
+exports.renderFieldLine = exports.renderIssueBody = void 0;
+const dotenvExpand = __importStar(__nccwpck_require__(7967));
 const renderIssueBody = (fields) => fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n');
 exports.renderIssueBody = renderIssueBody;
+const renderFieldLine = (line) => {
+    const [key, value] = line.split(',', 2).map(field => field.trim());
+    if (value && value.startsWith('"') && value.endsWith('"')) {
+        return {
+            key,
+            value: dotenvExpand.expand({ parsed: { value: value.slice(1, -1) } }).parsed
+                ?.value ?? ''
+        };
+    }
+    return { key, value: value ?? '' };
+};
+exports.renderFieldLine = renderFieldLine;
 
 
 /***/ }),
