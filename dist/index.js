@@ -38368,7 +38368,7 @@ exports.mergeFields = mergeFields;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateIssue = exports.createIssue = exports.openIssuesIterator = void 0;
+exports.getIssue = exports.updateIssue = exports.createIssue = exports.openIssuesIterator = void 0;
 const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const plugin_retry_1 = __nccwpck_require__(6298);
@@ -38401,6 +38401,11 @@ const updateIssue = async (issueNumber, title, body) => await octokit().rest.iss
     body
 });
 exports.updateIssue = updateIssue;
+const getIssue = async (issueNumber) => await octokit().rest.issues.get({
+    ...(0, inputs_1.repository)(),
+    issue_number: issueNumber
+});
+exports.getIssue = getIssue;
 
 
 /***/ }),
@@ -38434,7 +38439,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.repository = exports.fields = exports.failOnErrorInput = exports.partialUpdateInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
+exports.issueNumber = exports.repository = exports.fields = exports.failOnErrorInput = exports.partialUpdateInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const field_utils_1 = __nccwpck_require__(2456);
@@ -38492,6 +38497,8 @@ const repository = () => {
     return { owner, repo };
 };
 exports.repository = repository;
+const issueNumber = () => parseInt((0, exports.issueNumberInput)(), 10);
+exports.issueNumber = issueNumber;
 
 
 /***/ }),
@@ -38502,11 +38509,11 @@ exports.repository = repository;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.findIssueNumber = void 0;
+exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.determineFieldsForUpdate = exports.findIssueNumberByTitle = void 0;
 const field_utils_1 = __nccwpck_require__(2456);
 const github_1 = __nccwpck_require__(978);
 const inputs_1 = __nccwpck_require__(7063);
-const findIssueNumber = async (title) => {
+const findIssueNumberByTitle = async (title) => {
     for await (const response of (0, github_1.openIssuesIterator)()) {
         const issue = response.data.find((issue) => issue.title === title);
         if (issue)
@@ -38514,17 +38521,28 @@ const findIssueNumber = async (title) => {
     }
     return null;
 };
-exports.findIssueNumber = findIssueNumber;
+exports.findIssueNumberByTitle = findIssueNumberByTitle;
+const determineFieldsForUpdate = async (issueNumber) => {
+    if (!(0, inputs_1.partialUpdateInput)()) {
+        return (0, inputs_1.fields)();
+    }
+    const response = await (0, github_1.getIssue)(issueNumber);
+    if (!response.data.body) {
+        throw new Error('Issue body is empty');
+    }
+    return (0, field_utils_1.mergeFields)((0, field_utils_1.parseBodyFields)(response.data.body), (0, inputs_1.fields)());
+};
+exports.determineFieldsForUpdate = determineFieldsForUpdate;
 const updateIssueByTitle = async () => {
-    const existingIssueNumber = await (0, exports.findIssueNumber)((0, inputs_1.titleInput)());
+    const existingIssueNumber = await (0, exports.findIssueNumberByTitle)((0, inputs_1.titleInput)());
     if (!existingIssueNumber) {
         return null;
     }
-    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)((0, inputs_1.fields)()));
+    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)(existingIssueNumber)));
 };
 exports.updateIssueByTitle = updateIssueByTitle;
 const updateIssueByNumber = async () => {
-    return await (0, github_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)((0, inputs_1.fields)()));
+    return await (0, github_1.updateIssue)((0, inputs_1.issueNumber)(), (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)((0, inputs_1.issueNumber)())));
 };
 exports.updateIssueByNumber = updateIssueByNumber;
 const createNewIssue = async () => await (0, github_1.createIssue)((0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)((0, inputs_1.fields)()));

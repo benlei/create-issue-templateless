@@ -67,3 +67,5 @@ export const repository = (): Repository => {
 
   return { owner, repo }
 }
+
+export const issueNumber = (): number => parseInt(issueNumberInput(), 10)

@@ -1,9 +1,9 @@
 import { IssueListResponse } from '../src/types'
+import * as fieldUtils from './../src/field-utils'
 import * as github from './../src/github'
 import * as inputs from './../src/inputs'
 import * as issue from './../src/issue'
-import { findIssueNumber } from './../src/issue'
-import * as fieldUtils from './../src/field-utils'
+import { findIssueNumberByTitle } from './../src/issue'
 
 describe('findIssueNumber', () => {
   beforeEach(() => {
@@ -30,13 +30,13 @@ describe('findIssueNumber', () => {
     }
 
     jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator())
-    expect(await findIssueNumber('My Title')).toEqual(123)
+    expect(await findIssueNumberByTitle('My Title')).toEqual(123)
 
     jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator())
-    expect(await findIssueNumber('More titles')).toEqual(42)
+    expect(await findIssueNumberByTitle('More titles')).toEqual(42)
 
     jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator())
-    expect(await findIssueNumber('unknown')).toEqual(null)
+    expect(await findIssueNumberByTitle('unknown')).toEqual(null)
   })
 })
 
@@ -46,11 +46,11 @@ describe('updateIssueByTitle', () => {
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fields').mockReturnValue([]) // ignore
     jest.spyOn(fieldUtils, 'renderIssueBody').mockReturnValue('My Body')
-    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
+    jest.spyOn(issue, 'findIssueNumberByTitle').mockResolvedValue(123)
   })
 
   it('should not create issue if not found', async () => {
-    jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(null)
+    jest.spyOn(issue, 'findIssueNumberByTitle').mockResolvedValue(null)
 
     expect(await issue.updateIssueByTitle()).toBeNull()
   })
@@ -101,5 +101,40 @@ describe('createNewIssue', () => {
     await issue.createNewIssue()
 
     expect(createIssue).toHaveBeenCalledWith('My Title', 'My Body')
+  })
+})
+
+describe('determineFieldsForUpdate', () => {
+  it('should return all fields if not partial update', async () => {
+    jest.spyOn(inputs, 'partialUpdateInput').mockReturnValue(false)
+    jest.spyOn(inputs, 'fields').mockReturnValue([
+      { key: 'field', value: 'value' },
+      { key: 'foo', value: 'bar' }
+    ])
+
+    expect(await issue.determineFieldsForUpdate(123)).toEqual([
+      { key: 'field', value: 'value' },
+      { key: 'foo', value: 'bar' }
+    ])
+  })
+
+  it('should merge fields if is partial update', async () => {
+    jest.spyOn(inputs, 'partialUpdateInput').mockReturnValue(true)
+    jest.spyOn(github, 'getIssue').mockResolvedValue({
+      data: {
+        number: 123,
+        body: '### field\n\norig value\n\n### hello\n\nworld'
+      }
+    })
+    jest.spyOn(inputs, 'fields').mockReturnValue([
+      { key: 'field', value: 'value' },
+      { key: 'foo', value: 'bar' }
+    ])
+
+    expect(await issue.determineFieldsForUpdate(123)).toEqual([
+      { key: 'field', value: 'value' },
+      { key: 'hello', value: 'world' },
+      { key: 'foo', value: 'bar' }
+    ])
   })
 })

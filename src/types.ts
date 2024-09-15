@@ -6,6 +6,7 @@ export interface Field {
 export interface IssueResponse {
   data: {
     number: number
+    body?: string | null
   }
 }
 
