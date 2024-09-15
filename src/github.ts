@@ -56,3 +56,9 @@ export const updateIssue = async (
     title,
     body
   })
+
+export const getIssue = async (issueNumber: number): Promise<IssueResponse> =>
+  await octokit().rest.issues.get({
+    ...repository(),
+    issue_number: issueNumber
+  })

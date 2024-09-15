@@ -48,7 +48,6 @@ jobs:
   test-action:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         id: checkout
@@ -117,6 +116,67 @@ jobs:
       - name: Print Create Output
         run: |
           echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ steps.test-action.outputs.issue-number }}
+
+  test-partial-update-action:
+    name: GitHub Actions Test - Partial Update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Read package.json
+        id: package
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./package.json
+
+      - name: Test Local Action - Create
+        id: test-action
+        uses: ./
+        env:
+          PACKAGE_JSON_BLOCK: |
+            ```json
+            ${{ steps.package.outputs.content }}
+            ```
+        with:
+          update-by-title: true
+          title: 'Test Partial Update from CI ${{ github.run_id }}'
+          fields: |
+            Release Name, hello-world
+            Release Version, v1.0.0
+            package.json, "${PACKAGE_JSON_BLOCK}"
+            Release Author, ${{ github.actor }}
+
+      - name: Print Create Output
+        run: |
+          echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
+
+      - name: Test Local Action - Partial Update
+        id: partial-update-action
+        uses: ./
+        env:
+          newVersion: v1.0.1
+        with:
+          update-by-title: true
+          partial-update: true
+          title: 'Test Partial Update from CI ${{ github.run_id }}'
+          fields: |
+            Release Name, goodbye, world!
+            Release Version, "${newVersion}"
+            package.json, **Redacted**
+            New Field, Hiya
+
+      - name: Expected update, but a new issue was created
+        if:
+          ${{ steps.partial-update-action.outputs.issue-number !=
+          steps.test-action.outputs.issue-number }}
+        run: exit 1
 
       - name: Close Issue
         uses: peter-evans/close-issue@v3

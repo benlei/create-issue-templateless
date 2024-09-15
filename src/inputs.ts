@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { context } from '@actions/github'
-import * as dotenvExpand from 'dotenv-expand'
+import { renderFieldLine } from './field-utils'
 import { Field, Repository } from './types'
 
 export const repositoryInput = (): string =>
@@ -38,25 +38,24 @@ export const githubTokenInput = (): string =>
     required: false
   })
 
+export const partialUpdateInput = (): boolean =>
+  core.getInput('partial-update', {
+    required: false,
+    trimWhitespace: true
+  }) === 'true'
+
+export const failOnErrorInput = (): boolean =>
+  core.getInput('fail-on-error', {
+    required: false,
+    trimWhitespace: true
+  }) !== 'false'
+
 export const fields = (): Field[] =>
   fieldsInput()
     .split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0)
-    .map(line => {
-      const [key, value] = line.split(',', 2).map(field => field.trim())
-
-      if (value && value.startsWith('"') && value.endsWith('"')) {
-        return {
-          key,
-          value:
-            dotenvExpand.expand({ parsed: { value: value.slice(1, -1) } })
-              .parsed?.value ?? ''
-        }
-      }
-
-      return { key, value: value ?? '' }
-    })
+    .map(renderFieldLine)
 
 export const repository = (): Repository => {
   const input =
@@ -68,3 +67,5 @@ export const repository = (): Repository => {
 
   return { owner, repo }
 }
+
+export const issueNumber = (): number => parseInt(issueNumberInput(), 10)

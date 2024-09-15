@@ -1,8 +1,14 @@
-import { createIssue, openIssuesIterator, updateIssue } from './github'
-import { fields, issueNumberInput, titleInput } from './inputs'
+import { mergeFields, parseBodyFields, renderIssueBody } from './field-utils'
+import {
+  createIssue,
+  getIssue,
+  openIssuesIterator,
+  updateIssue
+} from './github'
+import { fields, issueNumber, partialUpdateInput, titleInput } from './inputs'
 import { Field, IssueResponse } from './types'
 
-export const findIssueNumber = async (
+export const findIssueNumberByTitle = async (
   title: string
 ): Promise<number | null> => {
   for await (const response of openIssuesIterator()) {
@@ -16,27 +22,39 @@ export const findIssueNumber = async (
   return null
 }
 
-export const renderIssueBody = (fields: Field[]): string =>
-  fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n')
+export const determineFieldsForUpdate = async (
+  issueNumber: number
+): Promise<Field[]> => {
+  if (!partialUpdateInput()) {
+    return fields()
+  }
 
-export const updateIssueByTitle = async (): Promise<IssueResponse> => {
-  const existingIssueNumber = await findIssueNumber(titleInput())
+  const response = await getIssue(issueNumber)
+  if (!response.data.body) {
+    throw new Error('Issue body is empty')
+  }
+
+  return mergeFields(parseBodyFields(response.data.body), fields())
+}
+
+export const updateIssueByTitle = async (): Promise<IssueResponse | null> => {
+  const existingIssueNumber = await findIssueNumberByTitle(titleInput())
   if (!existingIssueNumber) {
-    return createNewIssue()
+    return null
   }
 
   return await updateIssue(
     existingIssueNumber,
     titleInput(),
-    renderIssueBody(fields())
+    renderIssueBody(await determineFieldsForUpdate(existingIssueNumber))
   )
 }
 
 export const updateIssueByNumber = async (): Promise<IssueResponse> => {
   return await updateIssue(
-    parseInt(issueNumberInput(), 10),
+    issueNumber(),
     titleInput(),
-    renderIssueBody(fields())
+    renderIssueBody(await determineFieldsForUpdate(issueNumber()))
   )
 }
 
