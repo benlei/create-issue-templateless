@@ -51,6 +51,9 @@ describe('action', () => {
     jest
       .spyOn(issue, 'updateIssueByNumber')
       .mockResolvedValue({ data: { number: 89 } })
+    jest
+      .spyOn(issue, 'createNewIssue')
+      .mockRejectedValue(new Error('Test error'))
 
     await main.run()
 
@@ -63,6 +66,9 @@ describe('action', () => {
     jest
       .spyOn(issue, 'updateIssueByTitle')
       .mockResolvedValue({ data: { number: 723 } })
+    jest
+      .spyOn(issue, 'createNewIssue')
+      .mockRejectedValue(new Error('Test error'))
 
     const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
 

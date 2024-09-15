@@ -28,12 +28,14 @@ export async function run(): Promise<void> {
       if (existingIssue) {
         core.setOutput('issue-number', existingIssue.data.number.toString())
         core.setOutput('status', 'updated')
+        return
       }
 
       if (partialUpdateInput()) {
         throw new Error('Issue not found')
       }
 
+      core.info('Issue not found, creating new issue instead')
       const result = await createNewIssue()
       core.setOutput('issue-number', result.data.number.toString())
       core.setOutput('status', 'created')

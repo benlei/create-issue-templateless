@@ -38602,10 +38602,12 @@ async function run() {
             if (existingIssue) {
                 core.setOutput('issue-number', existingIssue.data.number.toString());
                 core.setOutput('status', 'updated');
+                return;
             }
             if ((0, inputs_1.partialUpdateInput)()) {
                 throw new Error('Issue not found');
             }
+            core.info('Issue not found, creating new issue instead');
             const result = await (0, issue_1.createNewIssue)();
             core.setOutput('issue-number', result.data.number.toString());
             core.setOutput('status', 'created');
