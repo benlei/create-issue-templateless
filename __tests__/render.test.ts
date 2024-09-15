@@ -1,4 +1,8 @@
-import { renderFieldLine, renderIssueBody } from '../src/render'
+import {
+  parseBodyFields,
+  renderFieldLine,
+  renderIssueBody
+} from '../src/render'
 import { Field } from '../src/types'
 
 const fields: Field[] = [
@@ -14,6 +18,28 @@ thefield1value
 ### Another Field Name
 
 Some value 1234
+`.trim()
+
+const renderedBodyWithEmbeddedFields = `
+### Field 1
+
+thefield1value with **bold** and *italic* text
+
+### Another Field Name
+
+Some value 1234
+
+> Some Quoted Value
+
+* list
+* of
+* items
+
+Blah
+
+### Final Heading
+
+Final value
 `.trim()
 
 describe('renderIssueBody', () => {
@@ -45,3 +71,30 @@ describe('renderFieldLine', () => {
     })
   })
 })
+
+describe('parseBodyFields', () => {
+  it('should parse the body into fields', () => {
+    const parsedFields = parseBodyFields(renderedBodyWithEmbeddedFields)
+    expect(parsedFields).toEqual([
+      {
+        key: 'Field 1',
+        value: 'thefield1value with **bold** and *italic* text'
+      },
+      {
+        key: 'Another Field Name',
+        value:
+          'Some value 1234\n\n> Some Quoted Value\n\n* list\n* of\n* items\n\nBlah'
+      },
+      { key: 'Final Heading', value: 'Final value' }
+    ])
+  })
+})
+
+// describe('updateBodyFields', () => {
+//   it('should update the body with the new fields', async () => {
+//     const updatedBody = await updateBodyFields(renderedBodyWithEmbeddedFields, [
+//       { key: 'Field 1', value: 'new value' }
+//     ])
+//     expect(updatedBody).toEqual('')
+//   })
+// })
