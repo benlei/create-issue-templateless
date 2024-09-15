@@ -31,9 +31,17 @@ describe('renderFieldLine', () => {
   })
 
   it('should handle quoted values', () => {
-    expect(renderFieldLine('Another Field Name, "Some value 1234"')).toEqual({
+    expect(renderFieldLine('Another Field Name, "Quoted Value"')).toEqual({
       key: 'Another Field Name',
-      value: 'Some value 1234'
+      value: 'Quoted Value'
+    })
+  })
+
+  it('should handle expanding env variables', () => {
+    process.env.envVar57258 = 'some\nmultiline\nvalue'
+    expect(renderFieldLine('Random Name, "${envVar57258}"')).toEqual({
+      key: 'Random Name',
+      value: 'some\nmultiline\nvalue'
     })
   })
 })
