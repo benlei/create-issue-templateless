@@ -27,7 +27,7 @@ issue title. Read more about the other inputs below.
 | `repository`      | no       | `${{ github.repository }}` | The repository to create/update issue                                                                                                                                                                                  |
 | `issue-number`    | no       | n/a                        | For updating only - the issue number to update                                                                                                                                                                         |
 | `update-by-title` | no       | `false`                    | If enabled, will find the first open issue with the exact same title and update its body with the new fields                                                                                                           |
-| `partial-update`  | no       | `false`                    | If enabled, requires that the issue exists and will fail if issue could not be found. Will update or append fields to an existing issue                                                                                |
+| `partial-update`  | no       | `false`                    | If enabled, requires that the issue exists and will fail if issue could not be found. Will update or append fields to an existing issue. If trying to update by title, then `update-by-title` must also be enabled.    |
 | `fail-on-error`   | no       | `true`                     | Whether any error encountered should fail this action or not                                                                                                                                                           |
 
 ## Outputs

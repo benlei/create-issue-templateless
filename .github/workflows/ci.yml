@@ -163,13 +163,20 @@ jobs:
         env:
           newVersion: v1.0.1
         with:
-          title: 'Test Partial Update from CI ${{ github.run_id }}'
+          update-by-title: true
           partial-update: true
+          title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
             Release Name, goodbye, world!
             Release Version, "${newVersion}"
             package.json, **Redacted**
             Release Author, ${{ github.actor }}
+
+      - name: Expected update, but a new issue was created
+        if:
+          ${{ steps.partial-update-action.outputs.issue-number !=
+          steps.test-action.outputs.issue-number }}
+        run: exit 1
 
       - name: Close Issue
         uses: peter-evans/close-issue@v3
