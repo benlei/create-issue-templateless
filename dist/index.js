@@ -30962,18 +30962,18 @@ const octokit = () => {
     }, plugin_retry_1.retry);
 };
 const openIssuesIterator = () => octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-    ...github_1.context.repo,
+    ...(0, inputs_1.repository)(),
     state: 'open'
 });
 exports.openIssuesIterator = openIssuesIterator;
 const createIssue = async (title, body) => await octokit().rest.issues.create({
-    ...github_1.context.repo,
+    ...(0, inputs_1.repository)(),
     title,
     body
 });
 exports.createIssue = createIssue;
 const updateIssue = async (issueNumber, title, body) => await octokit().rest.issues.update({
-    ...github_1.context.repo,
+    ...(0, inputs_1.repository)(),
     issue_number: issueNumber,
     title,
     body
@@ -31012,9 +31012,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fields = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = void 0;
+exports.repository = exports.fields = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
 const dotenvExpand = __importStar(__nccwpck_require__(7967));
+const repositoryInput = () => core.getInput('repository', {
+    required: true,
+    trimWhitespace: true
+});
+exports.repositoryInput = repositoryInput;
 const issueNumberInput = () => core.getInput('issue-number', {
     required: false,
     trimWhitespace: true
@@ -31055,6 +31061,15 @@ const fields = () => (0, exports.fieldsInput)()
     return { key, value: value ?? '' };
 });
 exports.fields = fields;
+const repository = () => {
+    const input = (0, exports.repositoryInput)() || `${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
+    const [owner, repo] = input.split('/', 2);
+    if (!owner || !repo) {
+        throw new Error(`Invalid repository input: ${input}`);
+    }
+    return { owner, repo };
+};
+exports.repository = repository;
 
 
 /***/ }),

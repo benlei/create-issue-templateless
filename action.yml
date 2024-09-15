@@ -11,6 +11,10 @@ branding:
 
 # Define your inputs here.
 inputs:
+  repository:
+    description:
+      'The repository to create the issue in. For example, benlei/test-action'
+    default: ${{ github.repository }}
   issue-number:
     description: 'The issue number to update'
     required: false

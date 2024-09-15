@@ -15,3 +15,8 @@ export interface IssueListResponse {
     title: string
   }[]
 }
+
+export interface Repository {
+  owner: string
+  repo: string
+}
