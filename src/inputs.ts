@@ -1,6 +1,13 @@
 import * as core from '@actions/core'
+import { context } from '@actions/github'
 import * as dotenvExpand from 'dotenv-expand'
-import { Field } from './types'
+import { Field, Repository } from './types'
+
+export const repositoryInput = (): string =>
+  core.getInput('repository', {
+    required: true,
+    trimWhitespace: true
+  })
 
 export const issueNumberInput = (): string =>
   core.getInput('issue-number', {
@@ -50,3 +57,14 @@ export const fields = (): Field[] =>
 
       return { key, value: value ?? '' }
     })
+
+export const repository = (): Repository => {
+  const input =
+    repositoryInput() || `${context.repo.owner}/${context.repo.repo}`
+  const [owner, repo] = input.split('/', 2)
+  if (!owner || !repo) {
+    throw new Error(`Invalid repository input: ${input}`)
+  }
+
+  return { owner, repo }
+}

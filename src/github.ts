@@ -1,10 +1,10 @@
-import { context, getOctokit } from '@actions/github'
+import { getOctokit } from '@actions/github'
 import {
   defaults as defaultGitHubOptions,
   GitHub
 } from '@actions/github/lib/utils'
 import { retry } from '@octokit/plugin-retry'
-import { githubTokenInput } from './inputs'
+import { githubTokenInput, repository } from './inputs'
 import { getRetryOptions } from './retry-options'
 import { IssueListResponse, IssueResponse } from './types'
 
@@ -31,7 +31,7 @@ const octokit = (): InstanceType<typeof GitHub> => {
 export const openIssuesIterator =
   (): AsyncIterableIterator<IssueListResponse> =>
     octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-      ...context.repo,
+      ...repository(),
       state: 'open'
     })
 
@@ -40,7 +40,7 @@ export const createIssue = async (
   body: string
 ): Promise<IssueResponse> =>
   await octokit().rest.issues.create({
-    ...context.repo,
+    ...repository(),
     title,
     body
   })
@@ -51,7 +51,7 @@ export const updateIssue = async (
   body: string
 ): Promise<IssueResponse> =>
   await octokit().rest.issues.update({
-    ...context.repo,
+    ...repository(),
     issue_number: issueNumber,
     title,
     body
