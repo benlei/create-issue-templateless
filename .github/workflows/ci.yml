@@ -170,7 +170,7 @@ jobs:
             Release Name, goodbye, world!
             Release Version, "${newVersion}"
             package.json, **Redacted**
-            Release Author, ${{ github.actor }}
+            New Field, Hiya
 
       - name: Expected update, but a new issue was created
         if:
