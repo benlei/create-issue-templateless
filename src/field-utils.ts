@@ -33,10 +33,13 @@ export const parseBodyFields = (body: string): Field[] => {
   const determineHeadingName = (
     nodes: Remarkable.Token[],
     headingOpenIndex: number
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   ): string => (nodes[headingOpenIndex + 1] as Remarkable.TextToken).content!
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const getHeadingStartLine = (node: Remarkable.Token): number => node.lines![0]
   const getHeadingEndingLine = (node: Remarkable.Token): number =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     node.lines![1]
 
   const bodySplit = body.split('\n')
@@ -67,18 +70,20 @@ export const parseBodyFields = (body: string): Field[] => {
   return result
 }
 
-export const updateBodyFields = (body: string, _: Field[]): string => {
-  const bodySplit = body.split('\n')
-  const newFields: Field[] = []
-  const md = new Remarkable()
-  const currentProcessedBody = md.parse(body, {})
+export const mergeFields = (
+  baseFields: Field[],
+  newFields: Field[]
+): Field[] => {
+  const result: Field[] = [...baseFields]
+  for (const newField of newFields) {
+    const existingField = result.find(field => field.key === newField.key)
 
-  // const partialProcessedBody = remark().processSync(
-  //   renderIssueBody(fields)
-  // )
+    if (existingField) {
+      existingField.value = newField.value
+    } else {
+      result.push(newField)
+    }
+  }
 
-  console.log(currentProcessedBody)
-  console.log(md.renderer.render(currentProcessedBody, {}, {}))
-
-  return newFields.join('\n')
+  return result
 }

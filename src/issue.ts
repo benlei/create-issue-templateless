@@ -1,6 +1,6 @@
+import { renderIssueBody } from './field-utils'
 import { createIssue, openIssuesIterator, updateIssue } from './github'
 import { fields, issueNumberInput, titleInput } from './inputs'
-import { renderIssueBody } from './render'
 import { IssueResponse } from './types'
 
 export const findIssueNumber = async (

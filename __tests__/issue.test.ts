@@ -3,7 +3,7 @@ import * as github from './../src/github'
 import * as inputs from './../src/inputs'
 import * as issue from './../src/issue'
 import { findIssueNumber } from './../src/issue'
-import * as render from './../src/render'
+import * as fieldUtils from './../src/field-utils'
 
 describe('findIssueNumber', () => {
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('updateIssueByTitle', () => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fields').mockReturnValue([]) // ignore
-    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(fieldUtils, 'renderIssueBody').mockReturnValue('My Body')
     jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
   })
 
@@ -70,7 +70,7 @@ describe('updateIssueByNumber', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(fieldUtils, 'renderIssueBody').mockReturnValue('My Body')
     jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('83')
   })
 
@@ -90,7 +90,7 @@ describe('createNewIssue', () => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fields').mockReturnValue([]) // ignore
-    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(fieldUtils, 'renderIssueBody').mockReturnValue('My Body')
   })
 
   it('should create issue with expected params', async () => {

@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { context } from '@actions/github'
-import { renderFieldLine } from './render'
+import { renderFieldLine } from './field-utils'
 import { Field, Repository } from './types'
 
 export const repositoryInput = (): string =>
