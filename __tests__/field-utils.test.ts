@@ -2,8 +2,7 @@ import {
   mergeFields,
   parseBodyFields,
   renderFieldLine,
-  renderIssueBody,
-  splitAtMost
+  renderIssueBody
 } from '../src/field-utils'
 import { Field } from '../src/types'
 
@@ -46,29 +45,6 @@ Blah
 
 Final value`.trim()
 
-describe('splitAtMost', () => {
-  it('should split a string at most n times', () => {
-    expect(splitAtMost('a,b,c,d', ',', 2)).toEqual(['a', 'b,c,d'])
-  })
-
-  it('should return the original string if there are no delimiters', () => {
-    expect(splitAtMost('a b c d', ',', 2)).toEqual(['a b c d'])
-  })
-
-  it('should return the original string if limit is 1 or 0', () => {
-    expect(splitAtMost('a b c d', ',', 1)).toEqual(['a b c d'])
-    expect(splitAtMost('a b c d', ',', 0)).toEqual(['a b c d'])
-  })
-
-  it('should still have a last element even if empty', () => {
-    expect(splitAtMost('a,', ',', 2)).toEqual(['a', ''])
-  })
-
-  it('should handle empty entries', () => {
-    expect(splitAtMost('a,,,', ',', 3)).toEqual(['a', '', ','])
-  })
-})
-
 describe('renderIssueBody', () => {
   it('should render the fields input like an issue template would', () => {
     expect(renderIssueBody(fields)).toEqual(renderedBody)
@@ -76,10 +52,33 @@ describe('renderIssueBody', () => {
 })
 
 describe('renderFieldLine', () => {
+  it('should handle empty strings', () => {
+    expect(renderFieldLine(' ')).toEqual({
+      key: '',
+      value: ''
+    })
+  })
+
   it('should parse a line of fields input into a Field object', () => {
-    expect(renderFieldLine('Field 1, thefield1value')).toEqual({
+    expect(renderFieldLine('Field 1, thefield1value, the fieldvalue2')).toEqual(
+      {
+        key: 'Field 1',
+        value: 'thefield1value, the fieldvalue2'
+      }
+    )
+  })
+
+  it('should handle line with no commas', () => {
+    expect(renderFieldLine('Field 1')).toEqual({
       key: 'Field 1',
-      value: 'thefield1value'
+      value: ''
+    })
+  })
+
+  it('should handle line with commas but no value', () => {
+    expect(renderFieldLine('Field 1,')).toEqual({
+      key: 'Field 1',
+      value: ''
     })
   })
 
