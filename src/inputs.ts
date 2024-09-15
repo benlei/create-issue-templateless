@@ -38,6 +38,18 @@ export const githubTokenInput = (): string =>
     required: false
   })
 
+export const partialUpdateInput = (): boolean =>
+  core.getInput('partial-update', {
+    required: false,
+    trimWhitespace: true
+  }) === 'true'
+
+export const failOnErrorInput = (): boolean =>
+  core.getInput('fail-on-error', {
+    required: false,
+    trimWhitespace: true
+  }) !== 'false'
+
 export const fields = (): Field[] =>
   fieldsInput()
     .split('\n')

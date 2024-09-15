@@ -1,5 +1,10 @@
 import * as core from '@actions/core'
-import { issueNumberInput, updateByTitleInput } from './inputs'
+import {
+  failOnErrorInput,
+  issueNumberInput,
+  partialUpdateInput,
+  updateByTitleInput
+} from './inputs'
 import {
   createNewIssue,
   updateIssueByNumber,
@@ -23,6 +28,10 @@ export async function run(): Promise<void> {
         core.setOutput('status', 'updated')
       }
 
+      if (partialUpdateInput()) {
+        throw new Error('Issue not found')
+      }
+
       const result = await createNewIssue()
       core.setOutput('issue-number', result.data.number.toString())
       core.setOutput('status', 'created')
@@ -33,7 +42,8 @@ export async function run(): Promise<void> {
     }
   } catch (error) {
     // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (failOnErrorInput() && error instanceof Error)
+      core.setFailed(error.message)
     core.setOutput('status', 'error')
   }
 }

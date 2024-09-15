@@ -31012,7 +31012,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.repository = exports.fields = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
+exports.repository = exports.fields = exports.failOnErrorInput = exports.partialUpdateInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const dotenvExpand = __importStar(__nccwpck_require__(7967));
@@ -31045,6 +31045,16 @@ const githubTokenInput = () => core.getInput('github-token', {
     required: false
 });
 exports.githubTokenInput = githubTokenInput;
+const partialUpdateInput = () => core.getInput('partial-update', {
+    required: false,
+    trimWhitespace: true
+}) === 'true';
+exports.partialUpdateInput = partialUpdateInput;
+const failOnErrorInput = () => core.getInput('fail-on-error', {
+    required: false,
+    trimWhitespace: true
+}) !== 'false';
+exports.failOnErrorInput = failOnErrorInput;
 const fields = () => (0, exports.fieldsInput)()
     .split('\n')
     .map(line => line.trim())
@@ -31162,6 +31172,9 @@ async function run() {
                 core.setOutput('issue-number', existingIssue.data.number.toString());
                 core.setOutput('status', 'updated');
             }
+            if ((0, inputs_1.partialUpdateInput)()) {
+                throw new Error('Issue not found');
+            }
             const result = await (0, issue_1.createNewIssue)();
             core.setOutput('issue-number', result.data.number.toString());
             core.setOutput('status', 'created');
@@ -31174,7 +31187,7 @@ async function run() {
     }
     catch (error) {
         // Fail the workflow run if an error occurs
-        if (error instanceof Error)
+        if ((0, inputs_1.failOnErrorInput)() && error instanceof Error)
             core.setFailed(error.message);
         core.setOutput('status', 'error');
     }
