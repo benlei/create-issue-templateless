@@ -19,6 +19,8 @@ issue title. Read more about the other inputs below.
 
 ## Inputs
 
+<!-- markdownlint-disable MD013 -->
+
 | Input Name        | Required | Default                    | Description                                                                                                                                                                                                            |
 | ----------------- | -------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `title`           | yes      | n/a                        | The title of the issue                                                                                                                                                                                                 |
@@ -30,12 +32,18 @@ issue title. Read more about the other inputs below.
 | `partial-update`  | no       | `false`                    | If enabled, requires that the issue exists and will fail if issue could not be found. Will update or append fields to an existing issue. If trying to update by title, then `update-by-title` must also be enabled.    |
 | `fail-on-error`   | no       | `true`                     | Whether any error encountered should fail this action or not                                                                                                                                                           |
 
+<!-- markdownlint-enable MD013 -->
+
 ## Outputs
+
+<!-- markdownlint-disable MD013 -->
 
 | Output Name    | Description                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `issue-number` | The repository's issue number that was created/updated                                                                               |
 | `status`       | Whether or not an issue was created or updated, or if an error was encountered. Possible values are `created`, `updated`, or `error` |
+
+<!-- markdownlint-enable MD013 -->
 
 ## Examples
 
