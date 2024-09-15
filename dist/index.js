@@ -38591,11 +38591,13 @@ const issue_1 = __nccwpck_require__(769);
 async function run() {
     try {
         if ((0, inputs_1.issueNumberInput)()) {
+            core.info('Updating issue by number');
             const existingIssue = await (0, issue_1.updateIssueByNumber)();
             core.setOutput('issue-number', existingIssue.data.number.toString());
             core.setOutput('status', 'updated');
         }
         else if ((0, inputs_1.updateByTitleInput)()) {
+            core.info('Updating issue by title');
             const existingIssue = await (0, issue_1.updateIssueByTitle)();
             if (existingIssue) {
                 core.setOutput('issue-number', existingIssue.data.number.toString());
@@ -38609,6 +38611,7 @@ async function run() {
             core.setOutput('status', 'created');
         }
         else {
+            core.info('Creating new issue');
             const result = await (0, issue_1.createNewIssue)();
             core.setOutput('issue-number', result.data.number.toString());
             core.setOutput('status', 'created');

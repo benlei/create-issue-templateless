@@ -18,10 +18,12 @@ import {
 export async function run(): Promise<void> {
   try {
     if (issueNumberInput()) {
+      core.info('Updating issue by number')
       const existingIssue = await updateIssueByNumber()
       core.setOutput('issue-number', existingIssue.data.number.toString())
       core.setOutput('status', 'updated')
     } else if (updateByTitleInput()) {
+      core.info('Updating issue by title')
       const existingIssue = await updateIssueByTitle()
       if (existingIssue) {
         core.setOutput('issue-number', existingIssue.data.number.toString())
@@ -36,6 +38,7 @@ export async function run(): Promise<void> {
       core.setOutput('issue-number', result.data.number.toString())
       core.setOutput('status', 'created')
     } else {
+      core.info('Creating new issue')
       const result = await createNewIssue()
       core.setOutput('issue-number', result.data.number.toString())
       core.setOutput('status', 'created')

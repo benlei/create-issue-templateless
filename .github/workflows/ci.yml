@@ -145,6 +145,7 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
+          update-by-title: true
           title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
             Release Name, hello-world
