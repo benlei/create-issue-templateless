@@ -2,7 +2,8 @@ import {
   mergeFields,
   parseBodyFields,
   renderFieldLine,
-  renderIssueBody
+  renderIssueBody,
+  splitAtMost
 } from '../src/field-utils'
 import { Field } from '../src/types'
 
@@ -44,6 +45,29 @@ Blah
 ### Final Heading
 
 Final value`.trim()
+
+describe('splitAtMost', () => {
+  it('should split a string at most n times', () => {
+    expect(splitAtMost('a,b,c,d', ',', 2)).toEqual(['a', 'b,c,d'])
+  })
+
+  it('should return the original string if there are no delimiters', () => {
+    expect(splitAtMost('a b c d', ',', 2)).toEqual(['a b c d'])
+  })
+
+  it('should return the original string if limit is 1 or 0', () => {
+    expect(splitAtMost('a b c d', ',', 1)).toEqual(['a b c d'])
+    expect(splitAtMost('a b c d', ',', 0)).toEqual(['a b c d'])
+  })
+
+  it('should still have a last element even if empty', () => {
+    expect(splitAtMost('a,', ',', 2)).toEqual(['a', ''])
+  })
+
+  it('should handle empty entries', () => {
+    expect(splitAtMost('a,,,', ',', 3)).toEqual(['a', '', ','])
+  })
+})
 
 describe('renderIssueBody', () => {
   it('should render the fields input like an issue template would', () => {
