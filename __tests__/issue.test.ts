@@ -1,29 +1,9 @@
-import { Field, IssueListResponse } from '../src/types'
+import { IssueListResponse } from '../src/types'
 import * as github from './../src/github'
 import * as inputs from './../src/inputs'
 import * as issue from './../src/issue'
-import { findIssueNumber, renderIssueBody } from './../src/issue'
-
-const fields: Field[] = [
-  { key: 'Field 1', value: 'thefield1value' },
-  { key: 'Another Field Name', value: 'Some value 1234' }
-]
-
-const renderedBody = `
-### Field 1
-
-thefield1value
-
-### Another Field Name
-
-Some value 1234
-`.trim()
-
-describe('renderIssueBody', () => {
-  it('should render the fields input like an issue template would', () => {
-    expect(renderIssueBody(fields)).toEqual(renderedBody)
-  })
-})
+import { findIssueNumber } from './../src/issue'
+import * as render from './../src/render'
 
 describe('findIssueNumber', () => {
   beforeEach(() => {
@@ -65,7 +45,7 @@ describe('updateIssueByTitle', () => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fields').mockReturnValue([]) // ignore
-    jest.spyOn(issue, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
     jest.spyOn(issue, 'findIssueNumber').mockResolvedValue(123)
   })
 
@@ -90,7 +70,7 @@ describe('updateIssueByNumber', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest.spyOn(issue, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
     jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('83')
   })
 
@@ -110,7 +90,7 @@ describe('createNewIssue', () => {
     jest.clearAllMocks()
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
     jest.spyOn(inputs, 'fields').mockReturnValue([]) // ignore
-    jest.spyOn(issue, 'renderIssueBody').mockReturnValue('My Body')
+    jest.spyOn(render, 'renderIssueBody').mockReturnValue('My Body')
   })
 
   it('should create issue with expected params', async () => {

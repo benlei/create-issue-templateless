@@ -1,6 +1,7 @@
 import { createIssue, openIssuesIterator, updateIssue } from './github'
 import { fields, issueNumberInput, titleInput } from './inputs'
-import { Field, IssueResponse } from './types'
+import { renderIssueBody } from './render'
+import { IssueResponse } from './types'
 
 export const findIssueNumber = async (
   title: string
@@ -15,9 +16,6 @@ export const findIssueNumber = async (
 
   return null
 }
-
-export const renderIssueBody = (fields: Field[]): string =>
-  fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n')
 
 export const updateIssueByTitle = async (): Promise<IssueResponse | null> => {
   const existingIssueNumber = await findIssueNumber(titleInput())

@@ -31090,9 +31090,10 @@ exports.repository = repository;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.renderIssueBody = exports.findIssueNumber = void 0;
+exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.findIssueNumber = void 0;
 const github_1 = __nccwpck_require__(978);
 const inputs_1 = __nccwpck_require__(7063);
+const render_1 = __nccwpck_require__(1936);
 const findIssueNumber = async (title) => {
     for await (const response of (0, github_1.openIssuesIterator)()) {
         const issue = response.data.find((issue) => issue.title === title);
@@ -31102,21 +31103,19 @@ const findIssueNumber = async (title) => {
     return null;
 };
 exports.findIssueNumber = findIssueNumber;
-const renderIssueBody = (fields) => fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n');
-exports.renderIssueBody = renderIssueBody;
 const updateIssueByTitle = async () => {
     const existingIssueNumber = await (0, exports.findIssueNumber)((0, inputs_1.titleInput)());
     if (!existingIssueNumber) {
         return null;
     }
-    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, render_1.renderIssueBody)((0, inputs_1.fields)()));
 };
 exports.updateIssueByTitle = updateIssueByTitle;
 const updateIssueByNumber = async () => {
-    return await (0, github_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+    return await (0, github_1.updateIssue)(parseInt((0, inputs_1.issueNumberInput)(), 10), (0, inputs_1.titleInput)(), (0, render_1.renderIssueBody)((0, inputs_1.fields)()));
 };
 exports.updateIssueByNumber = updateIssueByNumber;
-const createNewIssue = async () => await (0, github_1.createIssue)((0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
+const createNewIssue = async () => await (0, github_1.createIssue)((0, inputs_1.titleInput)(), (0, render_1.renderIssueBody)((0, inputs_1.fields)()));
 exports.createNewIssue = createNewIssue;
 
 
@@ -31192,6 +31191,19 @@ async function run() {
         core.setOutput('status', 'error');
     }
 }
+
+
+/***/ }),
+
+/***/ 1936:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.renderIssueBody = void 0;
+const renderIssueBody = (fields) => fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n');
+exports.renderIssueBody = renderIssueBody;
 
 
 /***/ }),
