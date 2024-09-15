@@ -71,7 +71,6 @@
     "@octokit/core": "^5.2.0",
     "@octokit/plugin-retry": "^6.0.1",
     "dotenv-expand": "^11.0.6",
-    "remark": "^15.0.1",
     "remarkable": "^2.0.1"
   },
   "devDependencies": {
