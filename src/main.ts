@@ -15,15 +15,25 @@ export async function run(): Promise<void> {
     if (issueNumberInput()) {
       const existingIssue = await updateIssueByNumber()
       core.setOutput('issue-number', existingIssue.data.number.toString())
+      core.setOutput('status', 'updated')
     } else if (updateByTitleInput()) {
       const existingIssue = await updateIssueByTitle()
-      core.setOutput('issue-number', existingIssue.data.number.toString())
+      if (existingIssue) {
+        core.setOutput('issue-number', existingIssue.data.number.toString())
+        core.setOutput('status', 'updated')
+      }
+
+      const result = await createNewIssue()
+      core.setOutput('issue-number', result.data.number.toString())
+      core.setOutput('status', 'created')
     } else {
       const result = await createNewIssue()
       core.setOutput('issue-number', result.data.number.toString())
+      core.setOutput('status', 'created')
     }
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
+    core.setOutput('status', 'error')
   }
 }

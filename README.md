@@ -14,10 +14,28 @@ line separated entries formatted as `Field Title, Field Value`. If the field
 value is quoted, the action will try to expand any environment variables within
 the string.
 
-It does have the ability to update an existing issue if you provide the
-`issue-number` field... or if you set the `update-by-title` field as true, it'll
-try to exhaustively search for an issue with the same title and update it,
-otherwise will create the issue instead.
+It does have options around updating either by issue number or by the exact same
+issue title. Read more about the other inputs below.
+
+## Inputs
+
+| Input Name      | Required | Default                  | Description                                                                                                                                                                                                            |
+| --------------- | -------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| title           | yes      | n/a                      | The title of the issue                                                                                                                                                                                                 |
+| fields          | yes      | n/a                      | The fields of the issue, in the format of `Field Name, Field Text`. If formatted as `Field Name, "Field Text"`, environment variables will be expanded within the text, which can be useful for long/multiline fields. |
+| github-token    | no       | ${{ github.token }}      | The GitHub token to use for creating/updating issue                                                                                                                                                                    |
+| repository      | no       | ${{ github.repository }} | The repository to create/update issue                                                                                                                                                                                  |
+| issue-number    | no       | n/a                      | For updating only - the issue number to update                                                                                                                                                                         |
+| update-by-title | no       | false                    | If enabled, will find the first open issue with the exact same title and update its body with the new fields                                                                                                           |
+| partial-update  | no       | false                    | If enabled, requires that the issue exists and will fail if issue could not be found. Will update or append fields to an existing issue                                                                                |
+| fail-on-error   | no       | true                     | Whether any error encountered should fail this action or not                                                                                                                                                           |
+
+## Outputs
+
+| Output Name  | Description                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| issue-number | The repository's issue number that was created/updated                                                                               |
+| status       | Whether or not an issue was created or updated, or if an error was encountered. Possible values are 'created', 'updated', or 'error' |
 
 ## Examples
 

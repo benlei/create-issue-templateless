@@ -31097,7 +31097,7 @@ exports.renderIssueBody = renderIssueBody;
 const updateIssueByTitle = async () => {
     const existingIssueNumber = await (0, exports.findIssueNumber)((0, inputs_1.titleInput)());
     if (!existingIssueNumber) {
-        return (0, exports.createNewIssue)();
+        return null;
     }
     return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, exports.renderIssueBody)((0, inputs_1.fields)()));
 };
@@ -31154,20 +31154,29 @@ async function run() {
         if ((0, inputs_1.issueNumberInput)()) {
             const existingIssue = await (0, issue_1.updateIssueByNumber)();
             core.setOutput('issue-number', existingIssue.data.number.toString());
+            core.setOutput('status', 'updated');
         }
         else if ((0, inputs_1.updateByTitleInput)()) {
             const existingIssue = await (0, issue_1.updateIssueByTitle)();
-            core.setOutput('issue-number', existingIssue.data.number.toString());
+            if (existingIssue) {
+                core.setOutput('issue-number', existingIssue.data.number.toString());
+                core.setOutput('status', 'updated');
+            }
+            const result = await (0, issue_1.createNewIssue)();
+            core.setOutput('issue-number', result.data.number.toString());
+            core.setOutput('status', 'created');
         }
         else {
             const result = await (0, issue_1.createNewIssue)();
             core.setOutput('issue-number', result.data.number.toString());
+            core.setOutput('status', 'created');
         }
     }
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
+        core.setOutput('status', 'error');
     }
 }
 

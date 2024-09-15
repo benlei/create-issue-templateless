@@ -1,7 +1,7 @@
 name: 'Create Issue Templateless'
 description:
-  'Creates an issue like one would through an Issue Template, but without the
-  template'
+  'Creates or updates an issue like one would through an Issue Template, but
+  without the template'
 author: 'benlei'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
@@ -22,6 +22,14 @@ inputs:
     description: 'Whether to find the issue by title and update its contents'
     required: false
     default: 'false'
+  partial-update:
+    description: 'Whether to only update the fields provided'
+    required: false
+    default: 'false'
+  fail-on-error:
+    description: 'Whether to fail the action if an error occurs'
+    required: false
+    default: 'true'
   title:
     description: 'The title of the issue to find/update'
     required: true
@@ -37,6 +45,10 @@ inputs:
 outputs:
   issue-number:
     description: 'The issue number that was created or updated'
+  status:
+    description:
+      'The status of the action - created if an issue was created, updated if an
+      issue was updated, error if an error occurred'
 
 runs:
   using: node20

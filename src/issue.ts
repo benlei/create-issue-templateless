@@ -19,10 +19,10 @@ export const findIssueNumber = async (
 export const renderIssueBody = (fields: Field[]): string =>
   fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n')
 
-export const updateIssueByTitle = async (): Promise<IssueResponse> => {
+export const updateIssueByTitle = async (): Promise<IssueResponse | null> => {
   const existingIssueNumber = await findIssueNumber(titleInput())
   if (!existingIssueNumber) {
-    return createNewIssue()
+    return null
   }
 
   return await updateIssue(
