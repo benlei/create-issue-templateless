@@ -15,7 +15,7 @@ inputs:
     description:
       'The repository to create the issue in. For example, benlei/test-action'
     default: ${{ github.repository }}
-  github-token:
+  token:
     description: The GitHub token used to create an authenticated client
     default: ${{ github.token }}
     required: false

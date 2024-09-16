@@ -38740,7 +38740,7 @@ const fieldsInput = () => core.getInput('fields', {
     trimWhitespace: true
 });
 exports.fieldsInput = fieldsInput;
-const githubTokenInput = () => core.getInput('github-token', {
+const githubTokenInput = () => core.getInput('token', {
     required: false
 });
 exports.githubTokenInput = githubTokenInput;
