@@ -15,12 +15,6 @@ export const issueNumberInput = (): string =>
     trimWhitespace: true
   })
 
-export const updateByTitleInput = (): boolean =>
-  core.getInput('update-by-title', {
-    required: false,
-    trimWhitespace: true
-  }) === 'true'
-
 export const titleInput = (): string =>
   core.getInput('title', {
     required: true,
@@ -38,17 +32,25 @@ export const githubTokenInput = (): string =>
     required: false
   })
 
-export const partialUpdateInput = (): boolean =>
-  core.getInput('partial-update', {
-    required: false,
-    trimWhitespace: true
-  }) === 'true'
-
 export const failOnErrorInput = (): boolean =>
   core.getInput('fail-on-error', {
     required: false,
     trimWhitespace: true
   }) !== 'false'
+
+export const updateOptionInput = (): string =>
+  core.getInput('update-option', {
+    required: false,
+    trimWhitespace: true
+  })
+
+export const updateOption = (): string => {
+  if (['default', 'replace', 'patch', 'upsert'].includes(updateOptionInput())) {
+    return updateOptionInput()
+  }
+
+  return 'default'
+}
 
 export const fields = (): Field[] =>
   fieldsInput()

@@ -1,10 +1,5 @@
 import * as core from '@actions/core'
-import {
-  failOnErrorInput,
-  issueNumberInput,
-  partialUpdateInput,
-  updateByTitleInput
-} from './inputs'
+import { failOnErrorInput, issueNumberInput, updateOption } from './inputs'
 import {
   createNewIssue,
   updateIssueByNumber,
@@ -18,27 +13,19 @@ import {
 export async function run(): Promise<void> {
   try {
     if (issueNumberInput()) {
-      core.info('Updating issue by number')
-      const existingIssue = await updateIssueByNumber()
-      core.setOutput('issue-number', existingIssue.data.number.toString())
-      core.setOutput('status', 'updated')
-    } else if (updateByTitleInput()) {
-      core.info('Updating issue by title')
-      const existingIssue = await updateIssueByTitle()
-      if (existingIssue) {
-        core.setOutput('issue-number', existingIssue.data.number.toString())
-        core.setOutput('status', 'updated')
-        return
-      }
-
-      if (partialUpdateInput()) {
-        throw new Error('Issue not found')
-      }
-
-      core.info('Issue not found, creating new issue instead')
-      const result = await createNewIssue()
-      core.setOutput('issue-number', result.data.number.toString())
-      core.setOutput('status', 'created')
+      core.info(
+        `Using ${updateOption()} strategy and fetching issue by issue number`
+      )
+      const response = await updateIssueByNumber()
+      core.setOutput('issue-number', response.issue.data.number.toString())
+      core.setOutput('status', response.status)
+    } else if (updateOption() !== 'default') {
+      core.info(
+        `Using ${updateOption()} strategy and searching for issue by title`
+      )
+      const response = await updateIssueByTitle()
+      core.setOutput('issue-number', response.issue.data.number.toString())
+      core.setOutput('status', response.status)
     } else {
       core.info('Creating new issue')
       const result = await createNewIssue()

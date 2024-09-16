@@ -5511,7 +5511,7 @@ async function errorRequest(state, octokit, error, options) {
 
 // pkg/dist-src/wrap-request.js
 var import_light = __toESM(__nccwpck_require__(1174));
-var import_request_error = __nccwpck_require__(537);
+var import_request_error = __nccwpck_require__(8036);
 async function wrapRequest(state, octokit, request, options) {
   const limiter = new import_light.default();
   limiter.on("failed", function(error, info) {
@@ -5576,7 +5576,7 @@ retry.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 537:
+/***/ 8036:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5723,7 +5723,7 @@ function isPlainObject(value) {
 }
 
 // pkg/dist-src/fetch-wrapper.js
-var import_request_error = __nccwpck_require__(537);
+var import_request_error = __nccwpck_require__(13);
 
 // pkg/dist-src/get-buffer-response.js
 function getBufferResponse(response) {
@@ -5898,6 +5898,104 @@ var request = withDefaults(import_endpoint.endpoint, {
     "user-agent": `octokit-request.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
   }
 });
+// Annotate the CommonJS export names for ESM import in node:
+0 && (0);
+
+
+/***/ }),
+
+/***/ 13:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// pkg/dist-src/index.js
+var dist_src_exports = {};
+__export(dist_src_exports, {
+  RequestError: () => RequestError
+});
+module.exports = __toCommonJS(dist_src_exports);
+var import_deprecation = __nccwpck_require__(8932);
+var import_once = __toESM(__nccwpck_require__(1223));
+var logOnceCode = (0, import_once.default)((deprecation) => console.warn(deprecation));
+var logOnceHeaders = (0, import_once.default)((deprecation) => console.warn(deprecation));
+var RequestError = class extends Error {
+  constructor(message, statusCode, options) {
+    super(message);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    this.name = "HttpError";
+    this.status = statusCode;
+    let headers;
+    if ("headers" in options && typeof options.headers !== "undefined") {
+      headers = options.headers;
+    }
+    if ("response" in options) {
+      this.response = options.response;
+      headers = options.response.headers;
+    }
+    const requestCopy = Object.assign({}, options.request);
+    if (options.request.headers.authorization) {
+      requestCopy.headers = Object.assign({}, options.request.headers, {
+        authorization: options.request.headers.authorization.replace(
+          / .*$/,
+          " [REDACTED]"
+        )
+      });
+    }
+    requestCopy.url = requestCopy.url.replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]").replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
+    this.request = requestCopy;
+    Object.defineProperty(this, "code", {
+      get() {
+        logOnceCode(
+          new import_deprecation.Deprecation(
+            "[@octokit/request-error] `error.code` is deprecated, use `error.status`."
+          )
+        );
+        return statusCode;
+      }
+    });
+    Object.defineProperty(this, "headers", {
+      get() {
+        logOnceHeaders(
+          new import_deprecation.Deprecation(
+            "[@octokit/request-error] `error.headers` is deprecated, use `error.response.headers`."
+          )
+        );
+        return headers || {};
+      }
+    });
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (0);
 
@@ -38618,7 +38716,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.issueNumber = exports.repository = exports.fields = exports.failOnErrorInput = exports.partialUpdateInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.updateByTitleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
+exports.issueNumber = exports.repository = exports.fields = exports.updateOption = exports.updateOptionInput = exports.failOnErrorInput = exports.githubTokenInput = exports.fieldsInput = exports.titleInput = exports.issueNumberInput = exports.repositoryInput = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const field_utils_1 = __nccwpck_require__(2456);
@@ -38632,11 +38730,6 @@ const issueNumberInput = () => core.getInput('issue-number', {
     trimWhitespace: true
 });
 exports.issueNumberInput = issueNumberInput;
-const updateByTitleInput = () => core.getInput('update-by-title', {
-    required: false,
-    trimWhitespace: true
-}) === 'true';
-exports.updateByTitleInput = updateByTitleInput;
 const titleInput = () => core.getInput('title', {
     required: true,
     trimWhitespace: true
@@ -38651,16 +38744,23 @@ const githubTokenInput = () => core.getInput('github-token', {
     required: false
 });
 exports.githubTokenInput = githubTokenInput;
-const partialUpdateInput = () => core.getInput('partial-update', {
-    required: false,
-    trimWhitespace: true
-}) === 'true';
-exports.partialUpdateInput = partialUpdateInput;
 const failOnErrorInput = () => core.getInput('fail-on-error', {
     required: false,
     trimWhitespace: true
 }) !== 'false';
 exports.failOnErrorInput = failOnErrorInput;
+const updateOptionInput = () => core.getInput('update-option', {
+    required: false,
+    trimWhitespace: true
+});
+exports.updateOptionInput = updateOptionInput;
+const updateOption = () => {
+    if (['default', 'replace', 'patch', 'upsert'].includes((0, exports.updateOptionInput)())) {
+        return (0, exports.updateOptionInput)();
+    }
+    return 'default';
+};
+exports.updateOption = updateOption;
 const fields = () => (0, exports.fieldsInput)()
     .split('\n')
     .map(line => line.trim())
@@ -38688,7 +38788,7 @@ exports.issueNumber = issueNumber;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.determineFieldsForUpdate = exports.findIssueNumberByTitle = void 0;
+exports.createNewIssue = exports.updateIssueByNumber = exports.updateIssueByTitle = exports.determineFieldsForUpdate = exports.issueExists = exports.findIssueNumberByTitle = void 0;
 const field_utils_1 = __nccwpck_require__(2456);
 const github_1 = __nccwpck_require__(978);
 const inputs_1 = __nccwpck_require__(7063);
@@ -38701,8 +38801,25 @@ const findIssueNumberByTitle = async (title) => {
     return null;
 };
 exports.findIssueNumberByTitle = findIssueNumberByTitle;
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+const hasStatusField = (error) => {
+    return error && typeof error.status === 'number';
+};
+const issueExists = async () => {
+    try {
+        await (0, github_1.getIssue)((0, inputs_1.issueNumber)());
+        return true;
+    }
+    catch (error) {
+        if (hasStatusField(error) && error.status === 404) {
+            return false;
+        }
+        throw error;
+    }
+};
+exports.issueExists = issueExists;
 const determineFieldsForUpdate = async (issueNumber) => {
-    if (!(0, inputs_1.partialUpdateInput)()) {
+    if ((0, inputs_1.updateOption)() !== 'patch') {
         return (0, inputs_1.fields)();
     }
     const response = await (0, github_1.getIssue)(issueNumber);
@@ -38714,14 +38831,29 @@ const determineFieldsForUpdate = async (issueNumber) => {
 exports.determineFieldsForUpdate = determineFieldsForUpdate;
 const updateIssueByTitle = async () => {
     const existingIssueNumber = await (0, exports.findIssueNumberByTitle)((0, inputs_1.titleInput)());
-    if (!existingIssueNumber) {
-        return null;
+    if (existingIssueNumber) {
+        return {
+            issue: await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)(existingIssueNumber))),
+            status: 'updated'
+        };
     }
-    return await (0, github_1.updateIssue)(existingIssueNumber, (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)(existingIssueNumber)));
+    if ((0, inputs_1.updateOption)() === 'upsert') {
+        return { issue: await (0, exports.createNewIssue)(), status: 'created' };
+    }
+    throw new Error('Issue not found by title');
 };
 exports.updateIssueByTitle = updateIssueByTitle;
 const updateIssueByNumber = async () => {
-    return await (0, github_1.updateIssue)((0, inputs_1.issueNumber)(), (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)((0, inputs_1.issueNumber)())));
+    if (await (0, exports.issueExists)()) {
+        return {
+            issue: await (0, github_1.updateIssue)((0, inputs_1.issueNumber)(), (0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)(await (0, exports.determineFieldsForUpdate)((0, inputs_1.issueNumber)()))),
+            status: 'updated'
+        };
+    }
+    if ((0, inputs_1.updateOption)() === 'upsert') {
+        return { issue: await (0, exports.createNewIssue)(), status: 'created' };
+    }
+    throw new Error('Issue not found by issue number');
 };
 exports.updateIssueByNumber = updateIssueByNumber;
 const createNewIssue = async () => await (0, github_1.createIssue)((0, inputs_1.titleInput)(), (0, field_utils_1.renderIssueBody)((0, inputs_1.fields)()));
@@ -38770,26 +38902,16 @@ const issue_1 = __nccwpck_require__(769);
 async function run() {
     try {
         if ((0, inputs_1.issueNumberInput)()) {
-            core.info('Updating issue by number');
-            const existingIssue = await (0, issue_1.updateIssueByNumber)();
-            core.setOutput('issue-number', existingIssue.data.number.toString());
-            core.setOutput('status', 'updated');
+            core.info(`Using ${(0, inputs_1.updateOption)()} strategy and fetching issue by issue number`);
+            const response = await (0, issue_1.updateIssueByNumber)();
+            core.setOutput('issue-number', response.issue.data.number.toString());
+            core.setOutput('status', response.status);
         }
-        else if ((0, inputs_1.updateByTitleInput)()) {
-            core.info('Updating issue by title');
-            const existingIssue = await (0, issue_1.updateIssueByTitle)();
-            if (existingIssue) {
-                core.setOutput('issue-number', existingIssue.data.number.toString());
-                core.setOutput('status', 'updated');
-                return;
-            }
-            if ((0, inputs_1.partialUpdateInput)()) {
-                throw new Error('Issue not found');
-            }
-            core.info('Issue not found, creating new issue instead');
-            const result = await (0, issue_1.createNewIssue)();
-            core.setOutput('issue-number', result.data.number.toString());
-            core.setOutput('status', 'created');
+        else if ((0, inputs_1.updateOption)() !== 'default') {
+            core.info(`Using ${(0, inputs_1.updateOption)()} strategy and searching for issue by title`);
+            const response = await (0, issue_1.updateIssueByTitle)();
+            core.setOutput('issue-number', response.issue.data.number.toString());
+            core.setOutput('status', response.status);
         }
         else {
             core.info('Creating new issue');

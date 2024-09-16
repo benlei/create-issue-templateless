@@ -17,8 +17,10 @@ let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.restoreAllMocks()
+
     jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest.spyOn(inputs, 'updateByTitleInput').mockReturnValue(false)
+    jest.spyOn(inputs, 'updateOption').mockReturnValue('default')
     jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('')
 
     setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
@@ -50,10 +52,7 @@ describe('action', () => {
     jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('89')
     jest
       .spyOn(issue, 'updateIssueByNumber')
-      .mockResolvedValue({ data: { number: 89 } })
-    jest
-      .spyOn(issue, 'createNewIssue')
-      .mockRejectedValue(new Error('Test error'))
+      .mockResolvedValue({ issue: { data: { number: 89 } }, status: 'updated' })
 
     await main.run()
 
@@ -62,13 +61,11 @@ describe('action', () => {
   })
 
   it('should update issue by title when specified to', async () => {
-    jest.spyOn(inputs, 'updateByTitleInput').mockReturnValue(true)
-    jest
-      .spyOn(issue, 'updateIssueByTitle')
-      .mockResolvedValue({ data: { number: 723 } })
-    jest
-      .spyOn(issue, 'createNewIssue')
-      .mockRejectedValue(new Error('Test error'))
+    jest.spyOn(inputs, 'updateOption').mockReturnValue('replace')
+    jest.spyOn(issue, 'updateIssueByTitle').mockResolvedValue({
+      issue: { data: { number: 723 } },
+      status: 'updated'
+    })
 
     const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
 
@@ -76,17 +73,6 @@ describe('action', () => {
 
     expect(setOutputMock).toHaveBeenCalledWith('issue-number', '723')
     expect(setOutputMock).toHaveBeenCalledWith('status', 'updated')
-  })
-
-  it('should fail if partial update is enabled and issue not found', async () => {
-    jest.spyOn(inputs, 'updateByTitleInput').mockReturnValue(true)
-    jest.spyOn(inputs, 'partialUpdateInput').mockReturnValue(true)
-    jest.spyOn(issue, 'updateIssueByTitle').mockResolvedValue(null)
-
-    await main.run()
-
-    expect(setFailedMock).toHaveBeenCalledWith('Issue not found')
-    expect(setOutputMock).toHaveBeenCalledWith('status', 'error')
   })
 
   it('should not fail on error if failing on error is disabled', async () => {
