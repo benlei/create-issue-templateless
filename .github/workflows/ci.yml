@@ -133,6 +133,8 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           issue-number: ${{ steps.test-action.outputs.issue-number }}
 
   test-partial-update-action:
@@ -203,4 +205,6 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           issue-number: ${{ steps.test-action.outputs.issue-number }}
