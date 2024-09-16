@@ -5,7 +5,7 @@ import * as inputs from './../src/inputs'
 import * as issue from './../src/issue'
 import { findIssueNumberByTitle } from './../src/issue'
 
-describe('findIssueNumber', () => {
+describe('findIssueNumberByTitle', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
