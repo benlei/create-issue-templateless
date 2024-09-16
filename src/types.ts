@@ -21,3 +21,8 @@ export interface Repository {
   owner: string
   repo: string
 }
+
+export interface UpdateResponse {
+  issue: IssueResponse
+  status: 'created' | 'updated'
+}

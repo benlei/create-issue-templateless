@@ -5,8 +5,8 @@ import {
   openIssuesIterator,
   updateIssue
 } from './github'
-import { fields, issueNumber, partialUpdateInput, titleInput } from './inputs'
-import { Field, IssueResponse } from './types'
+import { fields, issueNumber, titleInput, updateOption } from './inputs'
+import { Field, IssueResponse, UpdateResponse } from './types'
 
 export const findIssueNumberByTitle = async (
   title: string
@@ -22,10 +22,28 @@ export const findIssueNumberByTitle = async (
   return null
 }
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+const hasStatusField = (error: any): error is { status: number } => {
+  return error && typeof error.status === 'number'
+}
+
+export const issueExists = async (): Promise<boolean> => {
+  try {
+    await getIssue(issueNumber())
+    return true
+  } catch (error) {
+    if (hasStatusField(error) && error.status === 404) {
+      return false
+    }
+
+    throw error
+  }
+}
+
 export const determineFieldsForUpdate = async (
   issueNumber: number
 ): Promise<Field[]> => {
-  if (!partialUpdateInput()) {
+  if (updateOption() !== 'patch') {
     return fields()
   }
 
@@ -37,25 +55,43 @@ export const determineFieldsForUpdate = async (
   return mergeFields(parseBodyFields(response.data.body), fields())
 }
 
-export const updateIssueByTitle = async (): Promise<IssueResponse | null> => {
+export const updateIssueByTitle = async (): Promise<UpdateResponse> => {
   const existingIssueNumber = await findIssueNumberByTitle(titleInput())
-  if (!existingIssueNumber) {
-    return null
+  if (existingIssueNumber) {
+    return {
+      issue: await updateIssue(
+        existingIssueNumber,
+        titleInput(),
+        renderIssueBody(await determineFieldsForUpdate(existingIssueNumber))
+      ),
+      status: 'updated'
+    }
   }
 
-  return await updateIssue(
-    existingIssueNumber,
-    titleInput(),
-    renderIssueBody(await determineFieldsForUpdate(existingIssueNumber))
-  )
+  if (updateOption() === 'upsert') {
+    return { issue: await createNewIssue(), status: 'created' }
+  }
+
+  throw new Error('Issue not found by title')
 }
 
-export const updateIssueByNumber = async (): Promise<IssueResponse> => {
-  return await updateIssue(
-    issueNumber(),
-    titleInput(),
-    renderIssueBody(await determineFieldsForUpdate(issueNumber()))
-  )
+export const updateIssueByNumber = async (): Promise<UpdateResponse> => {
+  if (await issueExists()) {
+    return {
+      issue: await updateIssue(
+        issueNumber(),
+        titleInput(),
+        renderIssueBody(await determineFieldsForUpdate(issueNumber()))
+      ),
+      status: 'updated'
+    }
+  }
+
+  if (updateOption() === 'upsert') {
+    return { issue: await createNewIssue(), status: 'created' }
+  }
+
+  throw new Error('Issue not found by issue number')
 }
 
 export const createNewIssue = async (): Promise<IssueResponse> =>

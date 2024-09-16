@@ -85,7 +85,7 @@ jobs:
             ```
         with:
           title: 'Long Running Issue'
-          update-by-title: true
+          update-option: replace
           fields: |
             Some Field, Some Value
             Hello, World
@@ -145,7 +145,6 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
-          update-by-title: true
           title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
             Release Name, hello-world
@@ -163,8 +162,7 @@ jobs:
         env:
           newVersion: v1.0.1
         with:
-          update-by-title: true
-          partial-update: true
+          update-option: patch
           title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
             Release Name, goodbye, world!

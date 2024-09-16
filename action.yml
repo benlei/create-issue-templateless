@@ -15,31 +15,28 @@ inputs:
     description:
       'The repository to create the issue in. For example, benlei/test-action'
     default: ${{ github.repository }}
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
   issue-number:
     description: 'The issue number to update'
     required: false
-  update-by-title:
-    description: 'Whether to find the issue by title and update its contents'
+  update-option:
+    description:
+      'Update options. Valid values are default, replace, patch, or upsert'
     required: false
-    default: 'false'
-  partial-update:
-    description: 'Whether to only update the fields provided'
-    required: false
-    default: 'false'
-  fail-on-error:
-    description: 'Whether to fail the action if an error occurs'
-    required: false
-    default: 'true'
+    default: 'default'
   title:
     description: 'The title of the issue to find/update'
     required: true
   fields:
     description: 'The fields to include in the issue'
     required: true
-  github-token:
-    description: The GitHub token used to create an authenticated client
-    default: ${{ github.token }}
+  fail-on-error:
+    description: 'Whether to fail the action if an error occurs'
     required: false
+    default: 'true'
 
 # Define your outputs here.
 outputs:

@@ -4,6 +4,7 @@ import { repository } from '../src/inputs'
 describe('fields', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.restoreAllMocks()
   })
 
   it('should parse fields properly', () => {
@@ -63,6 +64,7 @@ describe('fields', () => {
 describe('repository', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.restoreAllMocks()
   })
 
   it('should parse default repository properly', () => {
@@ -85,5 +87,28 @@ describe('repository', () => {
 
     jest.spyOn(inputs, 'repositoryInput').mockReturnValue('/bar')
     expect(() => repository()).toThrow()
+  })
+})
+
+describe('updateOption', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.restoreAllMocks()
+  })
+
+  it('should return default if not in the list', () => {
+    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('foo')
+    expect(inputs.updateOption()).toEqual('default')
+  })
+
+  it('should return the value if in the list', () => {
+    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('patch')
+    expect(inputs.updateOption()).toEqual('patch')
+
+    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('upsert')
+    expect(inputs.updateOption()).toEqual('upsert')
+
+    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('replace')
+    expect(inputs.updateOption()).toEqual('replace')
   })
 })
