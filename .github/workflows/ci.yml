@@ -59,18 +59,27 @@ jobs:
         with:
           path: ./package.json
 
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Test Local Action - Update by Number
         id: update-by-number-action
         uses: ./
         with:
-          issue-number: 12
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
+          issue-number: 1
           title: Update by Issue Number Long Running Issue
           fields: |
             Some Field, Some Value
             Hello, World
 
       - name: Expected update, but wasnt to correct issue
-        if: ${{ steps.update-by-number-action.outputs.issue-number != '12' }}
+        if: ${{ steps.update-by-number-action.outputs.issue-number != '1' }}
         run: |
           echo "Issue Number: ${{ steps.update-by-number-action.outputs.issue-number }}"
           exit 1
@@ -84,6 +93,8 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           title: 'Long Running Issue'
           update-option: replace
           fields: |
@@ -93,7 +104,7 @@ jobs:
             Foo, Bar
 
       - name: Expected update, but a new issue was created
-        if: ${{ steps.update-by-title-action.outputs.issue-number != '13' }}
+        if: ${{ steps.update-by-title-action.outputs.issue-number != '2' }}
         run: |
           echo "Issue Number: ${{ steps.update-by-title-action.outputs.issue-number }}"
           exit 1
@@ -107,6 +118,8 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           title: 'Test Issue from CI ${{ github.run_id }}'
           fields: |
             Release Name, hello-world
@@ -120,6 +133,8 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           issue-number: ${{ steps.test-action.outputs.issue-number }}
 
   test-partial-update-action:
@@ -136,6 +151,13 @@ jobs:
         with:
           path: ./package.json
 
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Test Local Action - Create
         id: test-action
         uses: ./
@@ -145,6 +167,8 @@ jobs:
             ${{ steps.package.outputs.content }}
             ```
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
             Release Name, hello-world
@@ -162,6 +186,8 @@ jobs:
         env:
           newVersion: v1.0.1
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           update-option: patch
           title: 'Test Partial Update from CI ${{ github.run_id }}'
           fields: |
@@ -179,4 +205,6 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
+          repository: benlei/internal-issues
+          token: ${{ steps.app-token.outputs.token }}
           issue-number: ${{ steps.test-action.outputs.issue-number }}
