@@ -64,7 +64,7 @@ jobs:
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ vars.GHES_INSTALLATION_ORG }}
+          owner: ${{ github.repository_owner }}
 
       - name: Test Local Action - Update by Number
         id: update-by-number-action
@@ -154,7 +154,7 @@ jobs:
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ vars.GHES_INSTALLATION_ORG }}
+          owner: ${{ github.repository_owner }}
 
       - name: Test Local Action - Create
         id: test-action
