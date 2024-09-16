@@ -72,14 +72,14 @@ jobs:
         with:
           repository: benlei/internal-issues
           github-token: ${{ steps.app-token.outputs.token }}
-          issue-number: 12
+          issue-number: 1
           title: Update by Issue Number Long Running Issue
           fields: |
             Some Field, Some Value
             Hello, World
 
       - name: Expected update, but wasnt to correct issue
-        if: ${{ steps.update-by-number-action.outputs.issue-number != '12' }}
+        if: ${{ steps.update-by-number-action.outputs.issue-number != '1' }}
         run: |
           echo "Issue Number: ${{ steps.update-by-number-action.outputs.issue-number }}"
           exit 1
@@ -104,7 +104,7 @@ jobs:
             Foo, Bar
 
       - name: Expected update, but a new issue was created
-        if: ${{ steps.update-by-title-action.outputs.issue-number != '13' }}
+        if: ${{ steps.update-by-title-action.outputs.issue-number != '2' }}
         run: |
           echo "Issue Number: ${{ steps.update-by-title-action.outputs.issue-number }}"
           exit 1
