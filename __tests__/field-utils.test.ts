@@ -92,7 +92,7 @@ describe('renderFieldLine', () => {
   it('should handle expanding env variables, especially with multiline keys', () => {
     process.env.envVar57258 = 'some\nmultiline\nvalue'
     process.env.envVar57257 = 'MyValue\ntrying to be funny'
-    expect(renderFieldLine('"${envVar57257}", "${envVar57258}"')).toEqual({
+    expect(renderFieldLine('${envVar57257}, "${envVar57258}"')).toEqual({
       key: 'MyValue trying to be funny',
       value: 'some\nmultiline\nvalue'
     })
