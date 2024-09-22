@@ -38647,16 +38647,18 @@ const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const plugin_retry_1 = __nccwpck_require__(6298);
 const inputs_1 = __nccwpck_require__(7063);
-const retry_options_1 = __nccwpck_require__(5199);
 const RetryAttempts = 3;
 const ExemptStatusCodes = [400, 401, 403, 404, 422];
-const octokit = () => {
-    const [retryOpts, requestOpts] = (0, retry_options_1.getRetryOptions)(RetryAttempts, ExemptStatusCodes, utils_1.defaults);
-    return (0, github_1.getOctokit)((0, inputs_1.githubTokenInput)(), {
-        retry: retryOpts,
-        request: requestOpts
-    }, plugin_retry_1.retry);
-};
+const octokit = () => (0, github_1.getOctokit)((0, inputs_1.githubTokenInput)(), {
+    retry: {
+        enabled: true,
+        doNotRetry: ExemptStatusCodes
+    },
+    request: {
+        ...utils_1.defaults.request,
+        retries: RetryAttempts
+    }
+}, plugin_retry_1.retry);
 const openIssuesIterator = () => octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
     ...(0, inputs_1.repository)(),
     state: 'open'
@@ -38923,70 +38925,6 @@ async function run() {
             core.setFailed(error.message);
         core.setOutput('status', 'error');
     }
-}
-
-
-/***/ }),
-
-/***/ 5199:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getRetryOptions = getRetryOptions;
-exports.parseNumberArray = parseNumberArray;
-/* ref: https://github.com/actions/github-script/blob/main/src/retry-options.ts */
-const core = __importStar(__nccwpck_require__(2186));
-function getRetryOptions(retries, exemptStatusCodes, defaultOptions) {
-    if (retries <= 0) {
-        return [{ enabled: false }, defaultOptions.request];
-    }
-    const retryOptions = {
-        enabled: true
-    };
-    if (exemptStatusCodes.length > 0) {
-        retryOptions.doNotRetry = exemptStatusCodes;
-    }
-    // The GitHub type has some defaults for `options.request`
-    // see: https://github.com/actions/toolkit/blob/4fbc5c941a57249b19562015edbd72add14be93d/packages/github/src/utils.ts#L15
-    // We pass these in here so they are not overidden.
-    const requestOptions = {
-        ...defaultOptions.request,
-        retries
-    };
-    core.debug(`GitHub client configured with: (retries: ${requestOptions.retries}, retry-exempt-status-code: ${retryOptions.doNotRetry ?? 'octokit default: [400, 401, 403, 404, 422]'})`);
-    return [retryOptions, requestOptions];
-}
-function parseNumberArray(listString) {
-    if (!listString) {
-        return [];
-    }
-    const split = listString.trim().split(',');
-    return split.map(x => parseInt(x));
 }
 
 

@@ -5,28 +5,26 @@ import {
 } from '@actions/github/lib/utils'
 import { retry } from '@octokit/plugin-retry'
 import { githubTokenInput, repository } from './inputs'
-import { getRetryOptions } from './retry-options'
 import { IssueListResponse, IssueResponse } from './types'
 
 const RetryAttempts = 3
 const ExemptStatusCodes = [400, 401, 403, 404, 422]
 
-const octokit = (): InstanceType<typeof GitHub> => {
-  const [retryOpts, requestOpts] = getRetryOptions(
-    RetryAttempts,
-    ExemptStatusCodes,
-    defaultGitHubOptions
-  )
-
-  return getOctokit(
+const octokit = (): InstanceType<typeof GitHub> =>
+  getOctokit(
     githubTokenInput(),
     {
-      retry: retryOpts,
-      request: requestOpts
+      retry: {
+        enabled: true,
+        doNotRetry: ExemptStatusCodes
+      },
+      request: {
+        ...defaultGitHubOptions.request,
+        retries: RetryAttempts
+      }
     },
     retry
   )
-}
 
 export const openIssuesIterator =
   (): AsyncIterableIterator<IssueListResponse> =>
