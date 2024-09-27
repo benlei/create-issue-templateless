@@ -38920,9 +38920,15 @@ async function run() {
         }
     }
     catch (error) {
-        // Fail the workflow run if an error occurs
-        if ((0, inputs_1.failOnErrorInput)() && error instanceof Error)
-            core.setFailed(error.message);
+        if (error instanceof Error) {
+            if ((0, inputs_1.failOnErrorInput)()) {
+                // Fail the workflow run if an error occurs
+                core.setFailed(error.message);
+            }
+            else {
+                core.warning(error.message);
+            }
+        }
         core.setOutput('status', 'error');
     }
 }
