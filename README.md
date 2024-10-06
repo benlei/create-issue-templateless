@@ -14,9 +14,9 @@ line separated entries formatted as `Field Title, Field Value`. If the field
 value is quoted, the action will try to expand any environment variables within
 the string. Version 1.4.x utilized
 [dotenv-expand](https://www.npmjs.com/package/dotenv-expand) to expand
-environment variables, but version 1.5 utilized
-[explode-env](https://www.npmjs.com/package/explode-env) instead to preserve
-environment variables that did not exist.
+environment variables, but starting version 1.5
+[explode-env](https://www.npmjs.com/package/explode-env) is utilized instead to
+preserve environment variables that did not exist.
 
 It does have options around updating either by issue number or by the exact same
 issue title. Read more about the other inputs below.
