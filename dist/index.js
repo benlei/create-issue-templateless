@@ -7741,99 +7741,102 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
-/***/ 7967:
-/***/ ((module) => {
+/***/ 6078:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 
-// * /
-// *   (\\)?            # is it escaped with a backslash?
-// *   (\$)             # literal $
-// *   (?!\()           # shouldnt be followed by parenthesis
-// *   (\{?)            # first brace wrap opening
-// *   ([\w.]+)         # key
-// *   (?::-((?:\$\{(?:\$\{(?:\$\{[^}]*\}|[^}])*}|[^}])*}|[^}])+))? # optional default nested 3 times
-// *   (\}?)            # last brace warp closing
-// * /xi
-
-const DOTENV_SUBSTITUTION_REGEX = /(\\)?(\$)(?!\()(\{?)([\w.]+)(?::?-((?:\$\{(?:\$\{(?:\$\{[^}]*\}|[^}])*}|[^}])*}|[^}])+))?(\}?)/gi
-
-function _resolveEscapeSequences (value) {
-  return value.replace(/\\\$/g, '$')
-}
-
-function interpolate (value, processEnv, parsed) {
-  return value.replace(DOTENV_SUBSTITUTION_REGEX, (match, escaped, dollarSign, openBrace, key, defaultValue, closeBrace) => {
-    if (escaped === '\\') {
-      return match.slice(1)
-    } else {
-      if (processEnv[key]) {
-        if (processEnv[key] === parsed[key]) {
-          return processEnv[key]
-        } else {
-          // scenario: PASSWORD_EXPAND_NESTED=${PASSWORD_EXPAND}
-          return interpolate(processEnv[key], processEnv, parsed)
-        }
-      }
-
-      if (parsed[key]) {
-        // avoid recursion from EXPAND_SELF=$EXPAND_SELF
-        if (parsed[key] === value) {
-          return parsed[key]
-        } else {
-          return interpolate(parsed[key], processEnv, parsed)
-        }
-      }
-
-      if (defaultValue) {
-        if (defaultValue.startsWith('$')) {
-          return interpolate(defaultValue, processEnv, parsed)
-        } else {
-          return defaultValue
-        }
-      }
-
-      return ''
-    }
-  })
-}
-
-function expand (options) {
-  let processEnv = process.env
-  if (options && options.processEnv != null) {
-    processEnv = options.processEnv
-  }
-
-  for (const key in options.parsed) {
-    let value = options.parsed[key]
-
-    const inProcessEnv = Object.prototype.hasOwnProperty.call(processEnv, key)
-    if (inProcessEnv) {
-      if (processEnv[key] === options.parsed[key]) {
-        // assume was set to processEnv from the .env file if the values match and therefore interpolate
-        value = interpolate(value, processEnv, options.parsed)
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.explode = explode;
+exports.explodeEnv = explodeEnv;
+const DEFAULT_OPTIONS = {
+  ignoreUnsetVars: false,
+  ignoreDefaultExpansion: false
+};
+function explode(str, mapping, options = DEFAULT_OPTIONS) {
+  const m = {
+    ...mapping
+  };
+  let buffer = "";
+  let i = 0;
+  for (let j = 0; j < str.length; j++) {
+    if (str[j] === "$") {
+      buffer += str.slice(i, j);
+      const {
+        key,
+        length
+      } = getTemplateKey(str.slice(j + 1));
+      if (key === "") {
+        buffer += str.slice(j, j + length + 1);
       } else {
-        // do not interpolate - assume processEnv had the intended value even if containing a $.
-        value = processEnv[key]
+        const [realKey, defaultValue] = key.split(/:=|:-/);
+        if (realKey in m) {
+          buffer += m[realKey];
+        } else {
+          if (defaultValue && !options.ignoreDefaultExpansion) {
+            buffer += defaultValue;
+          } else if (options.ignoreUnsetVars) {
+            buffer += str.slice(j, j + length + 1);
+          }
+        }
+        if (!options.ignoreDefaultExpansion && !(realKey in m) && defaultValue?.length && key.includes(":=")) {
+          m[realKey] = defaultValue;
+        }
       }
-    } else {
-      // not inProcessEnv so assume interpolation for this .env key
-      value = interpolate(value, processEnv, options.parsed)
+      j += length;
+      i = j + 1;
     }
-
-    options.parsed[key] = _resolveEscapeSequences(value)
   }
-
-  for (const processKey in options.parsed) {
-    processEnv[processKey] = options.parsed[processKey]
-  }
-
-  return options
+  buffer += str.slice(i);
+  return buffer;
 }
-
-module.exports.expand = expand
-
+function explodeEnv(str, options = DEFAULT_OPTIONS) {
+  return explode(str, process.env, options);
+}
+function getTemplateKey(str) {
+  if (str[0] === "{") {
+    const end = str.indexOf("}");
+    if (end === 1) {
+      return {
+        key: "",
+        length: 2
+      };
+    } else if (end === -1) {
+      const key = str.slice(0);
+      return {
+        key: "",
+        length: key.length
+      };
+    }
+    return {
+      key: str.slice(1, end),
+      length: end + 1
+    };
+  }
+  if (isShellSpecialVar(str[0])) {
+    return {
+      key: "",
+      length: 0
+    };
+  }
+  let i = 0;
+  while (i < str.length && isAlphaNumeric(str[i])) {
+    i++;
+  }
+  return {
+    key: str.slice(0, i),
+    length: i
+  };
+}
+function isAlphaNumeric(char) {
+  return char === "_" || char >= "a" && char <= "z" || char >= "A" && char <= "Z" || char >= "0" && char <= "9";
+}
+function isShellSpecialVar(char) {
+  return ["*", "#", "$", "@", "!", "?", "-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char);
+}
 
 /***/ }),
 
@@ -38518,35 +38521,12 @@ function wrappy (fn, cb) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.mergeFields = exports.parseBodyFields = exports.renderFieldLine = exports.renderIssueBody = void 0;
-const dotenvExpand = __importStar(__nccwpck_require__(7967));
+const explode_env_1 = __nccwpck_require__(6078);
 const remarkable_1 = __nccwpck_require__(191);
 const split_string_1 = __importDefault(__nccwpck_require__(4960));
 const excludeNonEscapedQuotesFromResult = (value, state) => {
@@ -38565,14 +38545,9 @@ const splitFields = (str, delimiter) => {
 };
 const renderIssueBody = (fields) => fields.map(field => `### ${field.key}\n\n${field.value}`).join('\n\n');
 exports.renderIssueBody = renderIssueBody;
-const expandString = (value) => {
-    const keyName = '__autogenerated' + Math.random().toString(36).substring(7);
-    const parsed = {};
-    parsed[keyName] = value;
-    const expanded = dotenvExpand.expand({ parsed }).parsed ?? {};
-    delete process.env[keyName];
-    return expanded[keyName]?.trim() ?? '';
-};
+const expandString = (value) => (0, explode_env_1.explodeEnv)(value ? value : '', {
+    ignoreUnsetVars: true
+}).trim() ?? '';
 const renderFieldLine = (line) => {
     const [key, value] = splitFields(line, ',');
     return {

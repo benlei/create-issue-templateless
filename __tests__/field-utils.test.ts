@@ -97,6 +97,15 @@ describe('renderFieldLine', () => {
       value: 'some\nmultiline\nvalue'
     })
   })
+
+  it('should ignore unset env vars', () => {
+    expect(
+      renderFieldLine('${envVarNotExist}, "${anotherEnvVarNotExist}"')
+    ).toEqual({
+      key: '${envVarNotExist}',
+      value: '${anotherEnvVarNotExist}'
+    })
+  })
 })
 
 describe('parseBodyFields', () => {
