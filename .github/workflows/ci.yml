@@ -180,7 +180,7 @@ jobs:
         run: |
           echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
 
-          sleep 5 # Wait for eventual consistency
+          sleep 10 # Wait for eventual consistency
 
       - name: Test Local Action - Partial Update
         id: partial-update-action
@@ -206,6 +206,7 @@ jobs:
 
       - name: Close Issue
         uses: peter-evans/close-issue@v3
+        if: always()
         with:
           repository: benlei/internal-issues
           token: ${{ steps.app-token.outputs.token }}
