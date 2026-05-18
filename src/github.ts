@@ -1,8 +1,5 @@
-import { getOctokit } from '@actions/github'
-import {
-  defaults as defaultGitHubOptions,
-  GitHub
-} from '@actions/github/lib/utils'
+import { Octokit } from '@octokit/rest'
+import { paginateRest } from '@octokit/plugin-paginate-rest'
 import { retry } from '@octokit/plugin-retry'
 import { githubTokenInput, repository } from './inputs'
 import { IssueListResponse, IssueResponse } from './types'
@@ -10,28 +7,24 @@ import { IssueListResponse, IssueResponse } from './types'
 const RetryAttempts = 3
 const ExemptStatusCodes = [400, 401, 403, 404, 422]
 
-const octokit = (): InstanceType<typeof GitHub> =>
-  getOctokit(
-    githubTokenInput(),
-    {
-      retry: {
-        enabled: true,
-        doNotRetry: ExemptStatusCodes
-      },
-      request: {
-        ...defaultGitHubOptions.request,
-        retries: RetryAttempts
-      }
-    },
-    retry
-  )
+const MyOctokit = Octokit.plugin(paginateRest, retry)
 
-export const openIssuesIterator =
-  (): AsyncIterableIterator<IssueListResponse> =>
-    octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-      ...repository(),
-      state: 'open'
-    })
+const octokit = (): InstanceType<typeof MyOctokit> =>
+  new MyOctokit({
+    auth: githubTokenInput(),
+    retry: {
+      doNotRetry: ExemptStatusCodes
+    },
+    request: {
+      retries: RetryAttempts
+    }
+  })
+
+export const openIssuesIterator = (): AsyncIterable<IssueListResponse> =>
+  octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
+    ...repository(),
+    state: 'open'
+  })
 
 export const createIssue = async (
   title: string,

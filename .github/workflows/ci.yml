@@ -180,6 +180,8 @@ jobs:
         run: |
           echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
 
+          sleep 10 # Wait for eventual consistency
+
       - name: Test Local Action - Partial Update
         id: partial-update-action
         uses: ./
@@ -188,8 +190,8 @@ jobs:
         with:
           repository: benlei/internal-issues
           token: ${{ steps.app-token.outputs.token }}
-          update-option: patch
           title: 'Test Partial Update from CI ${{ github.run_id }}'
+          update-option: patch
           fields: |
             Release Name, goodbye, world!
             Release Version, "${newVersion}"
@@ -204,6 +206,7 @@ jobs:
 
       - name: Close Issue
         uses: peter-evans/close-issue@v3
+        if: always()
         with:
           repository: benlei/internal-issues
           token: ${{ steps.app-token.outputs.token }}

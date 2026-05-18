@@ -8,6 +8,8 @@ export interface IssueResponse {
     number: number
     body?: string | null
   }
+  status?: number
+  headers?: Record<string, string | number | undefined>
 }
 
 export interface IssueListResponse {

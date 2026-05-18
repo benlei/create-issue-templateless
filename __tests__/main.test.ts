@@ -5,31 +5,39 @@
  * Specifically, the inputs listed in `action.yml` should be set as environment
  * variables following the pattern `INPUT_<INPUT_NAME>`.
  */
-
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as core from '@actions/core'
 import * as inputs from '../src/inputs'
 import * as issue from '../src/issue'
 import * as main from '../src/main'
 
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
-let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
+vi.mock('@actions/core', () => ({
+  setOutput: vi.fn(),
+  setFailed: vi.fn(),
+  warning: vi.fn(),
+  getInput: vi.fn(),
+  info: vi.fn()
+}))
+
+let setOutputMock: ReturnType<typeof vi.spyOn>
+let setFailedMock: ReturnType<typeof vi.spyOn>
 
 describe('action', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
 
-    jest.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
-    jest.spyOn(inputs, 'updateOption').mockReturnValue('default')
-    jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('')
+    vi.spyOn(inputs, 'titleInput').mockReturnValue('My Title')
+    vi.spyOn(inputs, 'updateOption').mockReturnValue('default')
+    vi.spyOn(inputs, 'issueNumberInput').mockReturnValue('')
 
-    setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
-    setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
+    setOutputMock = vi.mocked(core.setOutput)
+    setFailedMock = vi.mocked(core.setFailed)
   })
   it('should create issue with expected params', async () => {
-    jest
-      .spyOn(issue, 'createNewIssue')
-      .mockResolvedValue({ data: { number: 123 } })
+    vi.spyOn(issue, 'createNewIssue').mockResolvedValue({
+      data: { number: 123 }
+    })
 
     await main.run()
 
@@ -38,9 +46,7 @@ describe('action', () => {
   })
 
   it('should fail the workflow if an error occurs', async () => {
-    jest
-      .spyOn(issue, 'createNewIssue')
-      .mockRejectedValue(new Error('Test error'))
+    vi.spyOn(issue, 'createNewIssue').mockRejectedValue(new Error('Test error'))
 
     await main.run()
 
@@ -49,10 +55,11 @@ describe('action', () => {
   })
 
   it('should update issue by issue number when specified to', async () => {
-    jest.spyOn(inputs, 'issueNumberInput').mockReturnValue('89')
-    jest
-      .spyOn(issue, 'updateIssueByNumber')
-      .mockResolvedValue({ issue: { data: { number: 89 } }, status: 'updated' })
+    vi.spyOn(inputs, 'issueNumberInput').mockReturnValue('89')
+    vi.spyOn(issue, 'updateIssueByNumber').mockResolvedValue({
+      issue: { data: { number: 89 } },
+      status: 'updated'
+    })
 
     await main.run()
 
@@ -61,13 +68,13 @@ describe('action', () => {
   })
 
   it('should update issue by title when specified to', async () => {
-    jest.spyOn(inputs, 'updateOption').mockReturnValue('replace')
-    jest.spyOn(issue, 'updateIssueByTitle').mockResolvedValue({
+    vi.spyOn(inputs, 'updateOption').mockReturnValue('replace')
+    vi.spyOn(issue, 'updateIssueByTitle').mockResolvedValue({
       issue: { data: { number: 723 } },
       status: 'updated'
     })
 
-    const setOutputMock = jest.spyOn(core, 'setOutput').mockReturnValue()
+    const setOutputMock = vi.spyOn(core, 'setOutput').mockReturnValue()
 
     await main.run()
 
@@ -76,10 +83,8 @@ describe('action', () => {
   })
 
   it('should not fail on error if failing on error is disabled', async () => {
-    jest.spyOn(inputs, 'failOnErrorInput').mockReturnValue(false)
-    jest
-      .spyOn(issue, 'createNewIssue')
-      .mockRejectedValue(new Error('Test error'))
+    vi.spyOn(inputs, 'failOnErrorInput').mockReturnValue(false)
+    vi.spyOn(issue, 'createNewIssue').mockRejectedValue(new Error('Test error'))
 
     await main.run()
 
