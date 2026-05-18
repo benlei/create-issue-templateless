@@ -20,7 +20,10 @@ const octokit = (): InstanceType<typeof GitHub> =>
       },
       request: {
         ...defaultGitHubOptions.request,
-        retries: RetryAttempts
+        retries: RetryAttempts,
+        headers: {
+          'X-GitHub-Api-Version': '2026-03-10'
+        }
       }
     },
     retry

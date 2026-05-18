@@ -188,8 +188,8 @@ jobs:
         with:
           repository: benlei/internal-issues
           token: ${{ steps.app-token.outputs.token }}
-          update-option: patch
           title: 'Test Partial Update from CI ${{ github.run_id }}'
+          update-option: patch
           fields: |
             Release Name, goodbye, world!
             Release Version, "${newVersion}"

@@ -12,7 +12,9 @@ export const findIssueNumberByTitle = async (
   title: string
 ): Promise<number | null> => {
   for await (const response of openIssuesIterator()) {
-    const issue = response.data.find(
+    // Handle both old and new Octokit response formats
+    const issues = Array.isArray(response) ? response : response.data
+    const issue = issues.find(
       (issue: { title: string }) => issue.title === title
     )
 

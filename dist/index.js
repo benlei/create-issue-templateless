@@ -89126,7 +89126,10 @@ const octokit = () => (0, github_1.getOctokit)((0, inputs_1.githubTokenInput)(),
     },
     request: {
         ...utils_1.defaults.request,
-        retries: RetryAttempts
+        retries: RetryAttempts,
+        headers: {
+            'X-GitHub-Api-Version': '2026-03-10'
+        }
     }
 }, plugin_retry_1.retry);
 const openIssuesIterator = () => octokit().paginate.iterator('GET /repos/{owner}/{repo}/issues', {
@@ -89263,7 +89266,9 @@ const github_1 = __nccwpck_require__(978);
 const inputs_1 = __nccwpck_require__(7063);
 const findIssueNumberByTitle = async (title) => {
     for await (const response of (0, github_1.openIssuesIterator)()) {
-        const issue = response.data.find((issue) => issue.title === title);
+        // Handle both old and new Octokit response formats
+        const issues = Array.isArray(response) ? response : response.data;
+        const issue = issues.find((issue) => issue.title === title);
         if (issue)
             return issue.number;
     }

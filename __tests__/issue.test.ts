@@ -38,6 +38,30 @@ describe('findIssueNumberByTitle', () => {
     jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator())
     expect(await issue.findIssueNumberByTitle('unknown')).toEqual(null)
   })
+
+  it('should find the issue number with octokit v7 response format', async () => {
+    async function* iterator(): AsyncIterableIterator<
+      { title: string; number: number }[]
+    > {
+      yield [
+        { title: 'Some title', number: 643 },
+        { title: 'My Title', number: 456 }
+      ]
+
+      yield [
+        { title: 'Next title', number: 7542 },
+        { title: 'More titles', number: 789 }
+      ]
+    }
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator() as any)
+    expect(await issue.findIssueNumberByTitle('My Title')).toEqual(456)
+
+    jest.spyOn(github, 'openIssuesIterator').mockReturnValue(iterator() as any)
+    expect(await issue.findIssueNumberByTitle('More titles')).toEqual(789)
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+  })
 })
 
 describe('updateIssueByTitle', () => {
