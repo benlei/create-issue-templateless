@@ -180,6 +180,8 @@ jobs:
         run: |
           echo "Issue Number: ${{ steps.test-action.outputs.issue-number }}"
 
+          sleep 5 # Wait for eventual consistency
+
       - name: Test Local Action - Partial Update
         id: partial-update-action
         uses: ./
