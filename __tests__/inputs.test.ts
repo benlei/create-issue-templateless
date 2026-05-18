@@ -1,16 +1,27 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import * as rawInputs from '../src/inputs/rawInputs'
 import * as inputs from '../src/inputs'
 import { repository } from '../src/inputs'
 
+vi.mock('@actions/core', () => ({
+  setOutput: vi.fn(),
+  setFailed: vi.fn(),
+  warning: vi.fn(),
+  getInput: vi.fn(),
+  info: vi.fn()
+}))
+
 describe('fields', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should parse fields properly', () => {
-    jest
-      .spyOn(inputs, 'fieldsInput')
-      .mockReturnValue('key1, value1\nkey2, value2')
+    vi.spyOn(rawInputs, 'fieldsInput').mockReturnValue(
+      'key1, value1\nkey2, value2'
+    )
 
     const result = inputs.fields()
     expect(result).toEqual([
@@ -20,9 +31,9 @@ describe('fields', () => {
   })
 
   it('should ignore empty lines with whitespaces', () => {
-    jest
-      .spyOn(inputs, 'fieldsInput')
-      .mockReturnValue('key1, value1\n\n   \n\t\nkey2,   value2')
+    vi.spyOn(rawInputs, 'fieldsInput').mockReturnValue(
+      'key1, value1\n\n   \n\t\nkey2,   value2'
+    )
 
     const result = inputs.fields()
     expect(result).toEqual([
@@ -32,7 +43,7 @@ describe('fields', () => {
   })
 
   it('should technically key only line to have no value', () => {
-    jest.spyOn(inputs, 'fieldsInput').mockReturnValue('key1, value1\nkey2,')
+    vi.spyOn(rawInputs, 'fieldsInput').mockReturnValue('key1, value1\nkey2,')
 
     const result = inputs.fields()
     expect(result).toEqual([
@@ -45,11 +56,9 @@ describe('fields', () => {
     const key2Value = '```yaml\nfoo: 123\nbar: baz\n```'
     process.env.MY_ENV_VAR = key2Value
     process.env.MY_OTHER_ENV_VAR = 'hello\nworld'
-    jest
-      .spyOn(inputs, 'fieldsInput')
-      .mockReturnValue(
-        `key1, value1\nkey2, "\${MY_ENV_VAR}"\nkey3, 123\nkey4, "\${MY_OTHER_ENV_VAR}"`
-      )
+    vi.spyOn(rawInputs, 'fieldsInput').mockReturnValue(
+      `key1, value1\nkey2, "\${MY_ENV_VAR}"\nkey3, 123\nkey4, "\${MY_OTHER_ENV_VAR}"`
+    )
 
     const result = inputs.fields()
     expect(result).toEqual([
@@ -63,52 +72,52 @@ describe('fields', () => {
 
 describe('repository', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should parse default repository properly', () => {
     process.env.GITHUB_REPOSITORY = 'owner/repo'
-    jest.spyOn(inputs, 'repositoryInput').mockReturnValue('')
+    vi.spyOn(rawInputs, 'repositoryInput').mockReturnValue('')
 
     expect(repository()).toEqual({ owner: 'owner', repo: 'repo' })
   })
 
   it('should parse input repository properly', () => {
     process.env.GITHUB_REPOSITORY = 'owner/repo'
-    jest.spyOn(inputs, 'repositoryInput').mockReturnValue('foo/bar')
+    vi.spyOn(rawInputs, 'repositoryInput').mockReturnValue('foo/bar')
 
     expect(repository()).toEqual({ owner: 'foo', repo: 'bar' })
   })
 
   it('should throw an error if owner or repo is empty', () => {
-    jest.spyOn(inputs, 'repositoryInput').mockReturnValue('foo')
+    vi.spyOn(rawInputs, 'repositoryInput').mockReturnValue('foo')
     expect(() => repository()).toThrow()
 
-    jest.spyOn(inputs, 'repositoryInput').mockReturnValue('/bar')
+    vi.spyOn(rawInputs, 'repositoryInput').mockReturnValue('/bar')
     expect(() => repository()).toThrow()
   })
 })
 
 describe('updateOption', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should return default if not in the list', () => {
-    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('foo')
+    vi.spyOn(rawInputs, 'updateOptionInput').mockReturnValue('foo')
     expect(inputs.updateOption()).toEqual('default')
   })
 
   it('should return the value if in the list', () => {
-    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('patch')
+    vi.spyOn(rawInputs, 'updateOptionInput').mockReturnValue('patch')
     expect(inputs.updateOption()).toEqual('patch')
 
-    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('upsert')
+    vi.spyOn(rawInputs, 'updateOptionInput').mockReturnValue('upsert')
     expect(inputs.updateOption()).toEqual('upsert')
 
-    jest.spyOn(inputs, 'updateOptionInput').mockReturnValue('replace')
+    vi.spyOn(rawInputs, 'updateOptionInput').mockReturnValue('replace')
     expect(inputs.updateOption()).toEqual('replace')
   })
 })
