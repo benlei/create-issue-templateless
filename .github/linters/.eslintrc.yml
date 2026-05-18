@@ -12,6 +12,7 @@ ignorePatterns:
   - '**/dist/.*'
   - '**/coverage/.*'
   - '*.json'
+  - 'vitest.config.ts'
 
 parser: '@typescript-eslint/parser'
 

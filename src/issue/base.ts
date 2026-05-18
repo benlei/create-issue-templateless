@@ -7,6 +7,7 @@ export const findIssueNumberByTitle = async (
   title: string
 ): Promise<number | null> => {
   for await (const response of openIssuesIterator()) {
+    console.log('Received response from openIssuesIterator:', response) // Debug log
     // Handle both old and new Octokit response formats
     const issues = Array.isArray(response) ? response : response.data
     const issue = issues.find(
