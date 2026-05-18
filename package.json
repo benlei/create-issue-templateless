@@ -1,7 +1,7 @@
 {
   "name": "create-issue-templateless",
   "description": "Creates and update an issue like one would through an Issue Template, but without the template",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "author": "benlei",
   "private": true,
   "homepage": "https://github.com/benlei/create-issue-templateless",
@@ -21,7 +21,7 @@
     ".": "./dist/index.js"
   },
   "engines": {
-    "node": ">=21"
+    "node": ">=24"
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",

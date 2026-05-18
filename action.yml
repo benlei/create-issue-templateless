@@ -48,5 +48,5 @@ outputs:
       issue was updated, error if an error occurred'
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
